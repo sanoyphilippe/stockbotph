@@ -306,7 +306,7 @@ function receivedMessage(event) {
     var wordList = messageText.split(" ");
     console.log(messageText);
     console.log(wordList);
-    switch (wordList[0]) {
+    switch (wordList[0].toLowerCase()) {
       case 'quote':
         sendStockInfo(senderID, wordList[1].toUpperCase());
         break;
