@@ -308,55 +308,87 @@ function receivedMessage(event) {
     console.log(wordList);
     switch (wordList[0].toLowerCase()) {
       case 'quote':
-        sendStockInfo(senderID, wordList[1].toUpperCase());
+        if (wordList.length == 2) {
+          sendStockInfo(senderID, wordList[1].toUpperCase());
+        }
         break;
       case 'buy':
-        db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
-          if (err)
-            throw err;
-          if (company) {
-            var payload = {
-              state: "BUYING_STOCKS",
-              part: 0,
-              recipient: {
-                id: senderID
-              },
-              companyId: company._id,
-              companyName: company.name,
-              companySymbol: company.symbol
-            };
-            states(senderID, payload);
-          }
-        });
+        if (wordList.length == 2) {
+          db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
+            if (err)
+              throw err;
+            if (company) {
+              var payload = {
+                state: "BUYING_STOCKS",
+                part: 0,
+                recipient: {
+                  id: senderID
+                },
+                companyId: company._id,
+                companyName: company.name,
+                companySymbol: company.symbol
+              };
+              states(senderID, payload);
+            }
+          });
+        }
         break;
 
       case 'sell':
-        db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
-          if (err)
-            throw err;
-          if (company) {
-            var payload = {
-              state: "SELLING_STOCKS",
-              part: 0,
-              recipient: {
-                id: senderID
-              },
-              companyId: company._id,
-              companyName: company.name,
-              companySymbol: company.symbol
-            };
-            states(senderID, payload);
-          }
-        });
+        if (wordList.length == 2) {
+          db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
+            if (err)
+              throw err;
+            if (company) {
+              var payload = {
+                state: "SELLING_STOCKS",
+                part: 0,
+                recipient: {
+                  id: senderID
+                },
+                companyId: company._id,
+                companyName: company.name,
+                companySymbol: company.symbol
+              };
+              states(senderID, payload);
+            }
+          });
+        }
         break;
       case 'logout':
-        sendAccountUnlinking(senderID);
+        if (wordList.length == 1) {
+          sendAccountUnlinking(senderID);
+        }
         break;
       
       case 'login':
-        sendAccountLinking(senderID);
+        if (wordList.length == 1) {
+          sendAccountLinking(senderID);
+        }
         break;
-
+      case 'help':
+        if (wordList.length == 2) {
+          switch(wordList[1].toLowerCase()) {
+            case 'quote':
+              var text = "quote <stock_ticker_symbol> :\nThis command shows information about specific comapny stocks.\n"
+                    + "<stock_ticker_symbol> should be the given symbol for that specific company.\n"
+                    + "i.e. BPI (for Bank of the Philippine Islands)";
+              sendTextMessage(senderID, text);
+              break;
+            case 'buy':
+              var text = "buy <stock_ticker_symbol> :\nThis command initiates buying of stocks for the specified company.\n"
+                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can buy,"
+                    + "\nand the number of shares you have for this company.";
+              sendTextMessage(senderID, text);
+              break;
+            case 'sell':
+              var text = "sell <stock_ticker_symbol> :\nThis command initiates selling of stocks for the specified company.\n"
+                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can sell,"
+                    + "\nand the number of shares you have for this company.";
+              sendTextMessage(senderID, text);
+              break;
+          }
+        }
       default:
         sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
     }
