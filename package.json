@@ -1,0 +1,28 @@
+{
+  "name": "messenger-get-started",
+  "version": "1.0.0",
+  "description": "Stockbot for philippines",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "lint": "jshint --exclude node_modules .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://sanoyphilippe@bitbucket.org/ibaguio/stockbot.git"
+  },
+  "author": "Philippe Oscar Sanoy",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "1.15.0",
+    "config": "1.20.4",
+    "express": "4.13.4",
+    "hbs": "4.0.1",
+    "mongoskin": "2.1.0",
+    "request": "2.72.0"
+  },
+  "engines": {
+    "node": "4.1.2"
+  }
+}
