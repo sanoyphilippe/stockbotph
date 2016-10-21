@@ -319,7 +319,7 @@ function receivedMessage(event) {
               state: "BUYING_STOCKS",
               part: 0,
               recipient: {
-                id: recipientId
+                id: senderID
               },
               companyId: company._id,
               companyName: company.name,
@@ -339,7 +339,7 @@ function receivedMessage(event) {
               state: "SELLING_STOCKS",
               part: 0,
               recipient: {
-                id: recipientId
+                id: senderID
               },
               companyId: company._id,
               companyName: company.name,
