@@ -389,6 +389,7 @@ function receivedMessage(event) {
               break;
           }
         }
+        break;
       default:
         sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
     }
