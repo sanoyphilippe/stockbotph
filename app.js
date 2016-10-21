@@ -310,6 +310,45 @@ function receivedMessage(event) {
       case 'quote':
         sendStockInfo(senderID, wordList[1].toUpperCase());
         break;
+      case 'buy':
+        db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
+          if (err)
+            throw err;
+          if (company) {
+            var payload = {
+              state: "BUYING_STOCKS",
+              part: 0,
+              recipient: {
+                id: recipientId
+              },
+              companyId: company._id,
+              companyName: company.name,
+              companySymbol: company.symbol
+            };
+            states(senderID, payload);
+          }
+        });
+        break;
+
+      case 'sell':
+        db.companies.findOne({"symbol": wordList[1].toUpperCase()}, function(err, company){
+          if (err)
+            throw err;
+          if (company) {
+            var payload = {
+              state: "SELLING_STOCKS",
+              part: 0,
+              recipient: {
+                id: recipientId
+              },
+              companyId: company._id,
+              companyName: company.name,
+              companySymbol: company.symbol
+            };
+            states(senderID, payload);
+          }
+        });
+        break;
 
       case 'image':
         sendImageMessage(senderID);
