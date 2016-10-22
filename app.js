@@ -446,6 +446,8 @@ function receivedMessage(event) {
           if (user) {
             switch(user.payload.state) {
               case "USER_SETUP":
+                console.log("The user went here and has payload of " + user.payload);
+                console.log(user);
                 sendTextMessage(senderID, "Please finish the inital setup.");
                 states(senderID, user.payload);
                 break;
