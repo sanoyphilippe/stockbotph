@@ -7,8 +7,9 @@ module.exports = function() {
       db.users.update({'fbUserId': senderID}, {"$set": {"payload": payload}}, function(err, user) {
         if (err)
           throw err;
+        console.log("payload inside is: " + payload);
         if (user) {
-        	console.log("payload inside is: " + payload);
+        	console.log(user);
           switch (payload.state) {
             case 'USER_SETUP':
               db.users.update({"fbUserId": senderID}, {"$inc": {"riskPreferenceValue": payload.value, "riskDivisor": payload.divisorValue}}, function(err, result) {
