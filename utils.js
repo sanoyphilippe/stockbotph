@@ -75,19 +75,8 @@ module.exports = function() {
                         db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
                           var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + entry.credit + ".";
                           sendTextMessage(senderID, text);
-
-                          var payload = { 
-                            state: "USER_SETUP", 
-                            done: false, 
-                            part: 0, 
-                            value: 0, 
-                            divisorValue: 0
-                          };
-                          db.users.update({"fbUserId": senderID}, {"$set": {"payload": payload}}, function(err, result) {
-                            if (err)
-                              throw err;
-                            sendNewUserOptions(senderID);
-                          });
+                          sendNewUserOptions(senderID);
+                          //askRiskProfile(senderID)
                         });
                       }
                     });
@@ -131,8 +120,12 @@ module.exports = function() {
             text: "Welcome to Peso, your stocks assistant bot!",
             buttons:[{
               type: "postback",
+              url: "https://google.com",
+              title: "Tour"
+            }, {
+              type: "postback",
               title: "Setup account",
-              payload: JSON.stringify({ state: "USER_SETUP", done: false, part: 0, value: 0, divisorValue: 0})
+              "payload": JSON.stringify({ state: "USER_SETUP", done: false, part: 0, value: 0, divisorValue: 0})
             }]
           }
         }

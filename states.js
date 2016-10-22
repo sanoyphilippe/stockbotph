@@ -3,7 +3,7 @@ require('./utils.js')();
 module.exports = function() {
 	this.states = function(senderID, payload) {
 		if (payload) {
-			console.log("payload is: " + payload)
+			console.log("payload is: " + payload);
       db.users.update({'fbUserId': senderID}, {"$set": {"payload": payload}}, function(err, user) {
         if (err)
           throw err;
