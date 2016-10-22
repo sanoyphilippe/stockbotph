@@ -120,13 +120,13 @@ module.exports = function() {
                     + "\nand the number of shares you have for this company."
                     ];
                   sendTextMessage(senderID, text[0]);
-                  for (var i = 10000000; i >= 0; i--) {
+                  for (var i = 100000000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[1]);
-                  for (var i = 10000000; i >= 0; i--) {
+                  for (var i = 100000000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[2]);
-                  for (var i = 10000000; i >= 0; i--) {
+                  for (var i = 100000000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[3]);
                   break;
@@ -149,10 +149,10 @@ module.exports = function() {
 
             					switch(payload.part) {
 				            		case 0:
-				            			var text = "You are buying stocks from " + company.symbol
-				            			+ "\nCurrently priced at " + company.currentPrice + " per stock."
-				            			+ "\nYou have PHP " + user.credit + "."
-				            			+ "\nYou can buy a maximum of " + max_transactions * lot_size + " stocks.";
+				            			var text = company.symbol + " is trading at "
+				            			+ prettifyNumber(company.currentPrice) + "."
+				            			+ "\nYou have PHP " + prettifyNumber(user.credit)
+				            			+ "and can buy up to " + max_transactions * lot_size + " shares.";
 				            			
 				            			if (user.stocks) {
 				            				if (user.stocks[company.currentSymbol]) {
@@ -283,7 +283,7 @@ module.exports = function() {
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.buyingPrice, payload.sharesAmount);
-				            			const total = (payload.buyingPrice * payload.sharesAmount) + fees;
+				            			const total = roundup(((payload.buyingPrice * payload.sharesAmount) + fees) * 100, 2)/100;
 				            			var textInfo = "Buying stocks of " + company.symbol
 				            				+ "\nPrice: " + payload.buyingPrice
 				            				+ "\nShares: " + payload.sharesAmount
@@ -385,9 +385,9 @@ module.exports = function() {
 
             					switch(payload.part) {
 				            		case 0:
-				            			var text = "You are selling stocks from " + company.symbol
-				            			+ "\nCurrently priced at " + company.currentPrice + " per stock."
-				            			+ "\nYou can sell a maximum of " + max_transactions * lot_size + " stocks.";
+				            			var text = company.symbol + " is trading at "
+				            			+ prettifyNumber(company.currentPrice) + "."
+				            			+ "\nYou can sell up to " + max_transactions * lot_size + " shares.";
 				            			
 				            			if (user.stocks) {
 				            				if (user.stocks[company.currentSymbol]) {
@@ -518,7 +518,7 @@ module.exports = function() {
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.sellingPrice, payload.sharesAmount);
-				            			const total = (payload.sellingPrice * payload.sharesAmount) + fees;
+				            			const total = roundup(((payload.sellingPrice * payload.sharesAmount) + fees) * 100, 2)/100;
 				            			var textInfo = "Selling stocks of " + company.symbol
 				            				+ "\nPrice: " + payload.sellingPrice
 				            				+ "\nShares: " + payload.sharesAmount

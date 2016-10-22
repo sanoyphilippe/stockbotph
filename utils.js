@@ -345,13 +345,7 @@ module.exports = function() {
     var time_now = new Date();
     if (marketIsOpen(time_now)) {
       var tick_size = getTickSize(price);
-      var decimalPlaces = tick_size.toString().split(".");
-      console.log(decimalPlaces);
-      if (decimalPlaces.length == 2) {
-        decimalPlaces = decimalPlaces[1].length;
-      } else {
-        decimalPlaces = 0;
-      }
+      var decimalPlaces = getDecimalPlaces(tick_size);
       console.log("decimal places are " + decimalPlaces);
       time_now = time_now.getTime()/1000;
       lastModified = lastModified.getTime()/1000;
@@ -373,18 +367,26 @@ module.exports = function() {
     }
   };
 
-  this.removeExtraDecimals = function (price, tick_size) {
-    var decimalPlaces = tick_size.toString().split(".");
-    console.log(decimalPlaces);
+  this.getDecimalPlaces = function(value) {
+    var decimalPlaces = value.toString().split(".");
     if (decimalPlaces.length == 2) {
       decimalPlaces = decimalPlaces[1].length;
     } else {
       decimalPlaces = 0;
     }
+    return decimalPlaces;
+  };
+
+  this.removeExtraDecimals = function (price, tick_size) {
+    var decimalPlaces = getDecimalPlaces(tick_size);
     var regulator = Math.pow(10, decimalPlaces);
 
-    price = Math.floor(price * regulator)/regulator;
+    price = roundup(price * regulator, decimalPlaces)/regulator;
     return price;
+  }
+
+  this.roundup = function (value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
   }
 
   this.marketIsOpen = function (datetime) {
@@ -485,8 +487,69 @@ module.exports = function() {
      salesTax = sub_total * 0.005; 
     }
 
-    const total_fees = commission + vat + pseTransFee + sccp + salesTax;
+    const total_fees = roundup((commission + vat + pseTransFee + sccp + salesTax)*100, 2)/100;
     return total_fees;
+  };
+
+  this.formatValue = function(value) {
+    if (!isNaN(value)) {
+      return removeExtraDecimals(value, getTickSize(value));
+    }
+    return value;
+  };
+
+  /*
+  * given a number, returns a comma added string representation
+  * of the number
+  */
+  this.prettifyNumber = function (x) {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+  };
+
+  this.isValidPrice = function (price, symbol, callback) {
+    if (!isNaN(price)) {
+      db.companies.findOne({"symbol": symbol}, function(err, company) {
+        if (err)
+          callback && callback(err, null);
+        if (company) {
+          var tick_size = getTickSize(company.currentPrice);
+          var decimalPlaces = getDecimalPlaces(tick_size);
+          const regulator = Math.pow(10, decimalPlaces);
+          var remainder = (regulator * price) % (regulator* tick_size);
+          if (remainder == 0) {
+            callback && callback(null, true);
+          } else {
+            callback && callback(null, false);
+          }
+        } else {
+          console.log("company %s not found", symbol);
+          callback && callback(new Error("company not found", null));
+        }
+      });
+    }
+  };
+
+  this.isValidAmount = function (amount, symbol, callback) {
+    if (!isNaN(amount)) {
+      db.companies.findOne({"symbol": symbol}, function(err, company) {
+        if (err)
+          callback && callback(err, null);
+        if (company) {
+          var lot_size = getLotSize(company.currentPrice);
+          const remainder = amount % tick_size;
+          if (remainder == 0) {
+            callback && callback(null, true);
+          } else {
+            callback && callback(null, false);
+          }
+        } else {
+          console.log("company %s not found", symbol);
+          callback && callback(new Error("company not found", null));
+        }
+      });
+    }
   };
 
 }

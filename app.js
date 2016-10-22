@@ -357,13 +357,25 @@ function receivedMessage(event) {
         break;
       case 'logout':
         if (wordList.length == 1) {
-          sendAccountUnlinking(senderID);
+          db.users.findOne({ "fbUserId": senderID, "service.status": "unlinked"}, function(err, user) {
+            if (err)
+              throw err;
+            if (user) {
+              sendAccountUnlinking(senderID);
+            }
+          });
         }
         break;
       
       case 'login':
         if (wordList.length == 1) {
-          sendAccountLinking(senderID);
+          db.users.findOne({ "fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+            if (err)
+              throw err;
+            if (!user) {
+              sendAccountLinking(senderID);
+            }
+          });
         }
         break;
       case 'help':
@@ -391,7 +403,167 @@ function receivedMessage(event) {
         }
         break;
       default:
-        sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
+        db.users.findOne({"fbUserId": senderID, "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
+          if (err)
+            throw err;
+          if (user) {
+            switch(user.payload.state) {
+              case "BUYING_STATE":
+                switch(user.payload.part) {
+                  case 0:
+                    var buyingPrice = parseFloat(wordList[0]);
+
+                    if (!isNaN(buyingPrice)) {
+                      isValidPrice(buyingPrice, user.payload.companySymbol, function(err, result) {
+                        if (err) {
+                          sendTextMessage(senderID, "An error occured.");
+                          states(senderID, user.payload);
+                          throw err;
+                        }
+                        if (result) {
+                          var payload = {
+                                  state: "BUYING_STOCKS",
+                                  part: 1,
+                                  buyingPrice: formatValue(buyingPrice),
+                                  recipient: {
+                                    id: senderID
+                                  },
+                                  companyId: user.payload.companyId,
+                                  companyName: user.payload.companyName,
+                                  companySymbol: user.payload.companySymbol
+                                };
+                          states(senderID, payload);
+                        } else {
+                          sendTextMessage(senderID, "Invalid price value.");
+                          states(senderID, user.payload);
+                        }
+                      });
+                    } else {
+                      sendTextMessage(senderID, "Invalid price value.");
+                      states(senderID, user.payload);
+                    }
+                    break;
+
+                  case 1:
+                    var sharesAmount = parseInt(wordList[0]);
+                    if (!isNaN(sharesAmount)) {
+                      isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
+                        if (err) {
+                          sendTextMessage(senderID, "Invalid amount value.");
+                          states(senderID, user.payload);
+                          throw err;
+                        }
+                        if (result) {
+                          var payload = {
+                                state: "BUYING_STOCKS",
+                                part: 2,
+                                buyingPrice: user.payload.buyingPrice,
+                                sharesAmount: sharesAmount,
+                                recipient: {
+                                  id: senderID
+                                },
+                                companyId: user.payload.companyId,
+                                companyName: user.payload.companyName,
+                                companySymbol: user.payload.companySymbol
+                              };
+                          states(senderID, payload);
+                        } else {
+                          sendTextMessage(senderID, "Invalid amount value.");
+                          states(senderID, user.payload);
+                        }
+                      });  
+                    } else {
+                      sendTextMessage(senderID, "Invalid amount value.");
+                      states(senderID, user.payload);
+                    }
+                    break;
+                  default:
+                    states(senderID, user.payload);
+                }
+                break;
+              case "SELLING_STATE":
+                switch(user.payload.part) {
+                  case 0:
+                    var sellingPrice = parseFloat(wordList[0]);
+
+                    if (!isNaN(sellingPrice)) {
+                      isValidPrice(sellingPrice, user.payload.companySymbol, function(err, result) {
+                        if (err) {
+                          sendTextMessage(senderID, "An error occured.");
+                          states(senderID, user.payload);
+                          throw err;
+                        }
+                        if (result) {
+                          var payload = {
+                                  state: "SELLING_STOCKS",
+                                  part: 1,
+                                  sellingPrice: formatValue(sellingPrice),
+                                  recipient: {
+                                    id: senderID
+                                  },
+                                  companyId: user.payload.companyId,
+                                  companyName: user.payload.companyName,
+                                  companySymbol: user.payload.companySymbol
+                                };
+                          states(senderID, payload);
+                        } else {
+                          sendTextMessage(senderID, "Invalid price value.");
+                          states(senderID, user.payload);
+                        }
+                      });
+                    } else {
+                      sendTextMessage(senderID, "Invalid price value.");
+                      states(senderID, user.payload);
+                    }
+                    break;
+
+                  case 1:
+                    var sharesAmount = parseInt(wordList[0]);
+                    if (!isNaN(buyingPrice)) {
+                      isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
+                        if (err) {
+                          sendTextMessage(senderID, "Invalid amount value.");
+                          states(senderID, user.payload);
+                          throw err;
+                        }
+                        if (result) {
+                          if (user.stocks && (sharesAmount > user.stocks[user.payload.companySymbol])) {
+                            sendTextMessage(senderID, "You do not have that amount.");
+                            states(senderID, user.payload);
+                          } else if (user.stocks) {
+                            var payload = {
+                                state: "SELLING_STOCKS",
+                                part: 2,
+                                sellingPrice: user.payload.sellingPrice,
+                                sharesAmount: sharesAmount,
+                                recipient: {
+                                  id: senderID
+                                },
+                                companyId: user.payload.companyId,
+                                companyName: user.payload.companyName,
+                                companySymbol: user.payload.companySymbol
+                              };
+                            states(senderID, payload);
+                          }
+                        } else {
+                          sendTextMessage(senderID, "Invalid amount value.");
+                          states(senderID, user.payload);
+                        }
+                      });  
+                    } else {
+                      sendTextMessage(senderID, "Invalid amount value.");
+                      states(senderID, user.payload);
+                    }
+                    break;
+                  default:
+                    states(senderID, user.payload);
+                }
+                break;
+            }
+          } else {
+            sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
+          }
+        });
     }
   } else if (messageAttachments) {
     sendTextMessage(senderID, "Message with attachment received");
@@ -649,7 +821,7 @@ function sendStockInfo(recipientId, tickerSymbol) {
                           text: textInfo,
                           buttons:[{
                             type: "postback",
-                            title: "Buy Stocks",
+                            title: "Buy",
                             payload: JSON.stringify({
                               state: "BUYING_STOCKS",
                               part: 0,
@@ -662,22 +834,9 @@ function sendStockInfo(recipientId, tickerSymbol) {
                             })
                           }, {
                             type: "postback",
-                            title: "Sell Stocks",
+                            title: "Sell",
                             payload: JSON.stringify({
                               state: "SELLING_STOCKS",
-                              part: 0,
-                              recipient: {
-                                id: recipientId
-                              },
-                              companyId: company._id,
-                              companyName: company.name,
-                              companySymbol: company.symbol
-                            })
-                          }, {
-                            type: "postback",
-                            title: "More Info",
-                            payload: JSON.stringify({
-                              state: "BUYING_STOCKS",
                               part: 0,
                               recipient: {
                                 id: recipientId
