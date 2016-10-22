@@ -3,13 +3,10 @@ require('./utils.js')();
 module.exports = function() {
 	this.states = function(senderID, payload) {
 		if (payload) {
-			console.log("payload is: " + payload);
       db.users.update({'fbUserId': senderID}, {"$set": {"payload": payload}}, function(err, user) {
         if (err)
           throw err;
-        console.log("payload inside is: " + payload);
         if (user) {
-        	console.log(user);
           switch (payload.state) {
             case 'USER_SETUP':
               db.users.update({"fbUserId": senderID}, {"$inc": {"riskPreferenceValue": payload.value, "riskDivisor": payload.divisorValue}}, function(err, result) {
@@ -115,11 +112,11 @@ module.exports = function() {
                     + "\nquote <stock_ticker_symbol>, buy <stock_ticker_symbol>, sell <stock_ticker_symbol>"
                     + "\nType help <name_of_command> to know more about the command. i.e. help buy, help quote"
                     ];
-                  var payload = {
+                  var newpayload = {
                   	state: "IDLE",
                   	part: 0
                   };
-                  db.users.update({"fbUserId": senderID}, {"$set": {"payload": payload}}, function(err, result) {
+                  db.users.update({"fbUserId": senderID}, {"$set": {"payload": newpayload}}, function(err, result) {
                   	if (err)
                   		throw err;
                   	sendTextMessage(senderID, text[0]);
