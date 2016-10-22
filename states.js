@@ -152,7 +152,7 @@ module.exports = function() {
 				            			var text = company.symbol + " is trading at "
 				            			+ prettifyNumber(company.currentPrice) + "."
 				            			+ "\nYou have PHP " + prettifyNumber(user.credit)
-				            			+ "and can buy up to " + prettifyNumber(max_transactions * lot_size) + " shares.";
+				            			+ " and can buy up to " + prettifyNumber(max_transactions * lot_size) + " shares.";
 				            			
 				            			if (user.stocks) {
 				            				if (user.stocks[company.currentSymbol]) {
@@ -165,7 +165,7 @@ module.exports = function() {
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
-				                      title: "" + company.currentPrice,
+				                      title: "" + prettifyNumber(company.currentPrice),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 1,
@@ -180,7 +180,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + removeExtraDecimals(company.currentPrice - tick_size, tick_size),
+				                      "title": "" + prettifyNumber(removeExtraDecimals(company.currentPrice - tick_size, tick_size)),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 1,
@@ -195,7 +195,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + removeExtraDecimals(company.currentPrice - tick_size * 2, tick_size),
+				                      "title": "" + prettifyNumber(removeExtraDecimals(company.currentPrice - tick_size * 2, tick_size)),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 1,
@@ -216,7 +216,7 @@ module.exports = function() {
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
-				                      title: "" + max_transactions * lot_size,
+				                      title: "" + prettifyNumber(max_transactions * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 2,
@@ -232,7 +232,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/2)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/2)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 2,
@@ -248,7 +248,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/3)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/3)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 2,
@@ -264,7 +264,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/4)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/4)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "BUYING_STOCKS",
 	                              part: 2,
@@ -338,9 +338,9 @@ module.exports = function() {
 				            								if (err)
 				            									throw err;
 				            								if (user) {
-				            									text = "Success! you bought " + payload.sharesAmount 
+				            									text = "Success! you bought " + prettifyNumber(payload.sharesAmount) 
 				            										+ " shares of " + company.symbol
-				            										+ "\nYou now have " + user.stocks[company.symbol] + " shares of "
+				            										+ "\nYou now have " + prettifyNumber(user.stocks[company.symbol]) + " shares of "
 				            										+ company.symbol;
 				            									sendTextMessage(senderID, text, function(err, result) {
 				            										if (err)
@@ -401,7 +401,7 @@ module.exports = function() {
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
-				                      title: "" + company.currentPrice,
+				                      title: "" + prettifyNumber(company.currentPrice),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 1,
@@ -416,7 +416,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + removeExtraDecimals(company.currentPrice + tick_size, tick_size),
+				                      "title": "" + prettifyNumber(removeExtraDecimals(company.currentPrice + tick_size, tick_size)),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 1,
@@ -431,7 +431,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + removeExtraDecimals(company.currentPrice + tick_size * 2, tick_size),
+				                      "title": "" + prettifyNumber(removeExtraDecimals(company.currentPrice + tick_size * 2, tick_size)),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 1,
@@ -452,7 +452,7 @@ module.exports = function() {
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
-				                      title: "" + max_transactions * lot_size,
+				                      title: "" + prettifyNumber(max_transactions * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 2,
@@ -468,7 +468,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/2)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/2)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 2,
@@ -484,7 +484,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/3)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/3)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 2,
@@ -500,7 +500,7 @@ module.exports = function() {
 				                    },
 				                    {
 				                      "content_type":"text",
-				                      "title": "" + (Math.floor(max_transactions/4)) * lot_size,
+				                      "title": "" + prettifyNumber((Math.floor(max_transactions/4)) * lot_size),
 				                      payload: JSON.stringify({
 	                              state: "SELLING_STOCKS",
 	                              part: 2,
@@ -573,9 +573,9 @@ module.exports = function() {
 				            								if (err)
 				            									throw err;
 				            								if (user) {
-				            									text = "Success! you sold " + payload.sharesAmount 
+				            									text = "Success! you sold " + prettifyNumber(payload.sharesAmount) 
 				            										+ " shares of " + company.symbol
-				            										+ "\nYou now have PHP " + user.credit;
+				            										+ "\nYou now have PHP " + prettifyNumber(user.credit);
 				            									sendTextMessage(senderID, text, function(err, result) {
 				            										if (err)
 				            											throw err;

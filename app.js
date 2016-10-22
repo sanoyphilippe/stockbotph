@@ -565,24 +565,26 @@ function receivedMessage(event) {
                         }
 
                         if (result) {
-                          if (user.stocks && (sharesAmount > user.stocks[user.payload.companySymbol])) {
-                            sendTextMessage(senderID, "You do not have that amount.");
-                            states(senderID, user.payload);
-                          } else if (user.stocks) {
-                            var payload = {
-                                state: "SELLING_STOCKS",
-                                part: 2,
-                                sellingPrice: user.payload.sellingPrice,
-                                sharesAmount: sharesAmount,
-                                recipient: {
-                                  id: senderID
-                                },
-                                companyId: user.payload.companyId,
-                                companyName: user.payload.companyName,
-                                companySymbol: user.payload.companySymbol
-                              };
-                            states(senderID, payload);
-                          }
+                          db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
+                            if (userAccount.stocks && (sharesAmount > userAccount.stocks[user.payload.companySymbol])) {
+                              sendTextMessage(senderID, "Not enough shares.");
+                              states(senderID, user.payload);
+                            } else if (user.stocks) {
+                              var payload = {
+                                  state: "SELLING_STOCKS",
+                                  part: 2,
+                                  sellingPrice: user.payload.sellingPrice,
+                                  sharesAmount: sharesAmount,
+                                  recipient: {
+                                    id: senderID
+                                  },
+                                  companyId: user.payload.companyId,
+                                  companyName: user.payload.companyName,
+                                  companySymbol: user.payload.companySymbol
+                                };
+                              states(senderID, payload);
+                            }
+                          });
                         } else {
                           sendTextMessage(senderID, "Invalid amount value.");
                           states(senderID, user.payload);
