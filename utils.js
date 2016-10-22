@@ -87,7 +87,6 @@ module.exports = function() {
                             if (err)
                               throw err;
                             sendNewUserOptions(senderID);
-                          }
                         });
                       }
                     });
