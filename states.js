@@ -108,27 +108,20 @@ module.exports = function() {
 
                 case 4:
                   var text = [
-                    "You have finished setting up your account!\nHere are the list of commands you can use to interact with Peso.",
-                    "quote <stock_ticker_symbol> :\nThis command shows information about specific comapny stocks.\n"
-                    + "<stock_ticker_symbol> should be the given symbol for that specific company.\n"
-                    + "i.e. BPI (for Bank of the Philippine Islands)",
-                    "buy <stock_ticker_symbol> :\nThis command initiates buying of stocks for the specified company.\n"
-                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can buy,"
-                    + "\nand the number of shares you have for this company.",
-                    "sell <stock_ticker_symbol> :\nThis command initiates selling of stocks for the specified company.\n"
-                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can sell,"
-                    + "\nand the number of shares you have for this company."
+                    "You have finished setting up your account!\nHere are the list of commands you can use to interact with Peso."
+                    + "\nquote <stock_ticker_symbol>, buy <stock_ticker_symbol>, sell <stock_ticker_symbol>"
+                    + "\nType help <name_of_command> to know more about the command. i.e. help buy, help quote"
                     ];
                   sendTextMessage(senderID, text[0]);
-                  for (var i = 100000000; i >= 0; i--) {
-                  }
-                  sendTextMessage(senderID, text[1]);
-                  for (var i = 100000000; i >= 0; i--) {
-                  }
-                  sendTextMessage(senderID, text[2]);
-                  for (var i = 100000000; i >= 0; i--) {
-                  }
-                  sendTextMessage(senderID, text[3]);
+                  // for (var i = 100000000; i >= 0; i--) {
+                  // }
+                  // sendTextMessage(senderID, text[1]);
+                  // for (var i = 100000000; i >= 0; i--) {
+                  // }
+                  // sendTextMessage(senderID, text[2]);
+                  // for (var i = 100000000; i >= 0; i--) {
+                  // }
+                  // sendTextMessage(senderID, text[3]);
                   break;
               }
               break;

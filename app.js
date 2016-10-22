@@ -421,6 +421,19 @@ function receivedMessage(event) {
                     + "\nand the number of shares you have for this company.";
               sendTextMessage(senderID, text);
               break;
+            case 'login':
+              var text = "login:\nSends to the user a button link to initiate the login/registration process.";
+              sendTextMessage(senderID, text);
+              break;
+            case 'logout':
+              var text = "logout:\nSends to the user a button link to initiate the logout process.";
+              sendTextMessage(senderID, text);
+              break;
+            default:
+              sendTextMessage(senderID, "unrecognized command");
+          } else if (wordList.length == 1) {
+            var text = "List of command names: " + "\nquote, buy, sell, login, logout";
+            sendTextMessage(senderID, text);
           }
         }
         break;
@@ -432,6 +445,10 @@ function receivedMessage(event) {
           }
           if (user) {
             switch(user.payload.state) {
+              case "USER_SETUP":
+                sendTextMessage(senderID, "Please finish the inital setup.");
+                states(senderID, user.payload);
+                break;
               case "BUYING_STOCKS":
                 switch(user.payload.part) {
                   case 0:
