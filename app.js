@@ -452,7 +452,7 @@ function receivedMessage(event) {
               case "BUYING_STOCKS":
                 switch(user.payload.part) {
                   case 0:
-                    var buyingPrice = parseFloat(wordList[0]);
+                    var buyingPrice = parseFloat(wordList[0].replace(/,/g, ""));
 
                     if (!isNaN(buyingPrice)) {
                       isValidPrice(buyingPrice, user.payload.companySymbol, function(err, result) {
@@ -486,7 +486,7 @@ function receivedMessage(event) {
                     break;
 
                   case 1:
-                    var sharesAmount = parseInt(wordList[0]);
+                    var sharesAmount = parseInt(wordList[0].replace(/,/g, ""));
                     if (!isNaN(sharesAmount)) {
                       isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
                         if (err) {
