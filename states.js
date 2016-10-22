@@ -137,7 +137,7 @@ module.exports = function() {
             				if (user) {
             					const tick_size = getTickSize(company.currentPrice);
 		            			const lot_size = getLotSize(company.currentPrice);
-		            			const max_transactions = Math.floor(user.credit / (lot_size * company.currentPrice));
+		            			var max_transactions = Math.floor(user.credit / (lot_size * company.currentPrice));
 
             					switch(payload.part) {
 				            		case 0:
@@ -204,6 +204,7 @@ module.exports = function() {
 				                  sendQuickReply(senderID, textInfo, quickReplies);
 				            			break;
 				            		case 1:
+				            			max_transactions = Math.floor(user.credit / (lot_size * payload.buyingPrice));
 				            			var textInfo = "How many shares would you like to buy?";
 			            				var quickReplies = [
 				                    {
