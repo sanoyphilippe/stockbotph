@@ -617,6 +617,7 @@ function receivedMessage(event) {
                     }
                     break;
                   default:
+                    console.log("User is going to default");
                     states(senderID, user.payload);
                 }
                 break;
