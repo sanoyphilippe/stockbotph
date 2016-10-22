@@ -446,8 +446,6 @@ function receivedMessage(event) {
           if (user) {
             switch(user.payload.state) {
               case "USER_SETUP":
-                console.log("The user went here and has payload of " + user.payload);
-                console.log(user);
                 sendTextMessage(senderID, "Please finish the inital setup.");
                 states(senderID, user.payload);
                 break;
@@ -619,7 +617,6 @@ function receivedMessage(event) {
                     }
                     break;
                   default:
-                    console.log("User is going to default");
                     states(senderID, user.payload);
                 }
                 break;
@@ -678,10 +675,6 @@ function receivedPostback(event) {
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
   var payload = JSON.parse(event.postback.payload);
-  console.log("Received post back here");
-  console.log(event.postback);
-  console.log(event.postback.payload);
-  console.log(payload);
   states(senderID, payload);
 
   console.log("Received postback for user %d and page %d with payload '%s' " +

@@ -525,7 +525,7 @@ module.exports = function() {
           var decimalPlaces = getDecimalPlaces(tick_size);
           const regulator = Math.pow(10, decimalPlaces);
           var remainder = (regulator * price) % (regulator* tick_size);
-          if (remainder == 0) {
+          if (remainder == 0 && price > 0) {
             callback && callback(null, true);
           } else {
             callback && callback(null, false);
@@ -548,7 +548,7 @@ module.exports = function() {
         if (company) {
           var lot_size = getLotSize(company.currentPrice);
           const remainder = amount % lot_size;
-          if (remainder == 0) {
+          if (remainder == 0 && amount > 0) {
             callback && callback(null, true);
           } else {
             callback && callback(null, false);
