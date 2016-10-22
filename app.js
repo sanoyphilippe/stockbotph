@@ -478,7 +478,8 @@ function receivedMessage(event) {
                           throw err;
                         }
                         if (result) {
-                          var payload = {
+                          if (user.credit >= sharesAmount * user.payload.buyingPrice) {
+                            var payload = {
                                 state: "BUYING_STOCKS",
                                 part: 2,
                                 buyingPrice: user.payload.buyingPrice,
@@ -490,7 +491,11 @@ function receivedMessage(event) {
                                 companyName: user.payload.companyName,
                                 companySymbol: user.payload.companySymbol
                               };
-                          states(senderID, payload);
+                            states(senderID, payload);
+                          } else {
+                            sendTextMessage(senderID, "Not enough balance.");
+                            states(senderID, user.payload);
+                          }
                         } else {
                           sendTextMessage(senderID, "Invalid amount value.");
                           states(senderID, user.payload);
@@ -517,7 +522,7 @@ function receivedMessage(event) {
                           states(senderID, user.payload);
                           throw err;
                         }
-                        
+
                         if (result) {
                           var payload = {
                                   state: "SELLING_STOCKS",
