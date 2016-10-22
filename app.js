@@ -431,10 +431,10 @@ function receivedMessage(event) {
               break;
             default:
               sendTextMessage(senderID, "unrecognized command");
-          } else if (wordList.length == 1) {
-            var text = "List of command names: " + "\nquote, buy, sell, login, logout";
-            sendTextMessage(senderID, text);
           }
+        } else if (wordList.length == 1) {
+          var text = "List of command names: " + "\nquote, buy, sell, login, logout";
+          sendTextMessage(senderID, text);
         }
         break;
       default:
