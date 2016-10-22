@@ -357,10 +357,12 @@ function receivedMessage(event) {
         break;
       case 'logout':
         if (wordList.length == 1) {
-          db.users.findOne({ "fbUserId": senderID, "service.status": "unlinked"}, function(err, user) {
+          db.users.findOne({ "$and": [{"fbUserId": senderID}, {"service.status": "unlinked"}]}, function(err, user) {
             if (err)
               throw err;
-            if (user) {
+            console.log(" in logout case");
+            console.log(user);
+            if (!user) {
               sendAccountUnlinking(senderID);
             }
           });
@@ -369,9 +371,11 @@ function receivedMessage(event) {
       
       case 'login':
         if (wordList.length == 1) {
-          db.users.findOne({ "fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+          db.users.findOne({ "$and": [{"fbUserId": senderID}, {"service.status": "linked"}]}, function(err, user) {
             if (err)
               throw err;
+            console.log(" in login case");
+            console.log(user);
             if (!user) {
               sendAccountLinking(senderID);
             }
@@ -403,9 +407,14 @@ function receivedMessage(event) {
         }
         break;
       default:
+        console.log("In default");
         db.users.findOne({"fbUserId": senderID, "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
-          if (err)
+          if (err) {
+            console.log(user)
             throw err;
+          }
+          console.log("In db search");
+          console.log(user)
           if (user) {
             switch(user.payload.state) {
               case "BUYING_STATE":
