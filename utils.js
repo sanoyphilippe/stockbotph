@@ -119,7 +119,7 @@ module.exports = function() {
             template_type: "button",
             text: "Welcome to Peso, your stocks assistant bot!",
             buttons:[{
-              type: "postback",
+              type: "web_url",
               url: "https://google.com",
               title: "Tour"
             }, {
