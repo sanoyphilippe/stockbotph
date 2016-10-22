@@ -112,16 +112,15 @@ module.exports = function() {
                     + "\nquote <stock_ticker_symbol>, buy <stock_ticker_symbol>, sell <stock_ticker_symbol>"
                     + "\nType help <name_of_command> to know more about the command. i.e. help buy, help quote"
                     ];
-                  sendTextMessage(senderID, text[0]);
-                  // for (var i = 100000000; i >= 0; i--) {
-                  // }
-                  // sendTextMessage(senderID, text[1]);
-                  // for (var i = 100000000; i >= 0; i--) {
-                  // }
-                  // sendTextMessage(senderID, text[2]);
-                  // for (var i = 100000000; i >= 0; i--) {
-                  // }
-                  // sendTextMessage(senderID, text[3]);
+                  var payload = {
+                  	state: "IDLE",
+                  	part: 0
+                  };
+                  db.users.update({"fbUserId": senderID}, {"$set": {"payload": payload}}, function(err, result) {
+                  	if (err)
+                  		throw err;
+                  	sendTextMessage(senderID, text[0]);
+                  });
                   break;
               }
               break;
