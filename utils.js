@@ -83,10 +83,11 @@ module.exports = function() {
                             value: 0, 
                             divisorValue: 0
                           };
-                          db.users.update({"fbUserId": senderID}, {"$set": {"payload": payload}}, function(err, result)) {
+                          db.users.update({"fbUserId": senderID}, {"$set": {"payload": payload}}, function(err, result) {
                             if (err)
                               throw err;
                             sendNewUserOptions(senderID);
+                          });
                         });
                       }
                     });
