@@ -410,14 +410,11 @@ function receivedMessage(event) {
         console.log("In default");
         db.users.findOne({"fbUserId": senderID, "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
           if (err) {
-            console.log(user)
             throw err;
           }
-          console.log("In db search");
-          console.log(user)
           if (user) {
             switch(user.payload.state) {
-              case "BUYING_STATE":
+              case "BUYING_STOCKS":
                 switch(user.payload.part) {
                   case 0:
                     var buyingPrice = parseFloat(wordList[0]);
@@ -490,7 +487,7 @@ function receivedMessage(event) {
                     states(senderID, user.payload);
                 }
                 break;
-              case "SELLING_STATE":
+              case "SELLING_STOCKS":
                 switch(user.payload.part) {
                   case 0:
                     var sellingPrice = parseFloat(wordList[0]);
@@ -568,6 +565,8 @@ function receivedMessage(event) {
                     states(senderID, user.payload);
                 }
                 break;
+                default:
+                  sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
             }
           } else {
             sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
