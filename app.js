@@ -309,7 +309,7 @@ function receivedMessage(event) {
     switch (wordList[0].toLowerCase()) {
       case 'quote':
         if (wordList.length == 2) {
-          db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+          db.users.findOne({"fbUserId": senderID, "service.status": "linked", "payload.state": {"$ne": "USER_SETUP"}}, function(err, user) {
             if (err)
               throw err;
             if (user) {
@@ -324,7 +324,7 @@ function receivedMessage(event) {
             if (err)
               throw err;
             if (company) {
-              db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+              db.users.findOne({"fbUserId": senderID, "service.status": "linked", "payload.state": {"$ne": "USER_SETUP"}}, function(err, user) {
                 if (err)
                   throw err;
                 if (user) {
@@ -352,7 +352,7 @@ function receivedMessage(event) {
             if (err)
               throw err;
             if (company) {
-              db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+              db.users.findOne({"fbUserId": senderID, "service.status": "linked", "payload.state": {"$ne": "USER_SETUP"}}, function(err, user) {
                 if (err)
                   throw err;
                 if (user) {
@@ -439,7 +439,7 @@ function receivedMessage(event) {
         break;
       default:
         console.log("In default");
-        db.users.findOne({"fbUserId": senderID, "service.status": "linked", "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
+        db.users.findOne({"fbUserId": senderID, "service.status": "linked", "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}, {"payload.state": "USER_SETUP"}]}, function(err, user) {
           if (err) {
             throw err;
           }
