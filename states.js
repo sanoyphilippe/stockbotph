@@ -143,7 +143,7 @@ module.exports = function() {
 				            		case 0:
 				            			var text = company.symbol + " is trading at "
 				            			+ prettifyNumber(company.currentPrice) + "."
-				            			+ "\nYou have PHP " + prettifyNumber(user.credit)
+				            			+ "\nYou have PHP " + prettifyNumber(roundup(user.credit, 2))
 				            			+ " and can buy up to " + prettifyNumber(max_transactions * lot_size) + " shares.";
 				            			
 				            			if (user.stocks) {
@@ -568,7 +568,7 @@ module.exports = function() {
 				            								if (user) {
 				            									text = "Success! you sold " + prettifyNumber(payload.sharesAmount) 
 				            										+ " shares of " + company.symbol
-				            										+ "\nYou now have PHP " + prettifyNumber(user.credit);
+				            										+ "\nYou now have PHP " + prettifyNumber(roundup(user.credit, 2));
 				            									sendTextMessage(senderID, text, function(err, result) {
 				            										if (err)
 				            											throw err;
