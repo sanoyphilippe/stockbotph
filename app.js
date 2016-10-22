@@ -569,7 +569,7 @@ function receivedMessage(event) {
                             if (userAccount.stocks && (sharesAmount > userAccount.stocks[user.payload.companySymbol])) {
                               sendTextMessage(senderID, "Not enough shares.");
                               states(senderID, user.payload);
-                            } else if (user.stocks) {
+                            } else if (userAccountc.stocks) {
                               var payload = {
                                   state: "SELLING_STOCKS",
                                   part: 2,
@@ -583,6 +583,10 @@ function receivedMessage(event) {
                                   companySymbol: user.payload.companySymbol
                                 };
                               states(senderID, payload);
+                            } else {
+                              console.log(userAccount)
+                              sendTextMessage(senderID, "Invalid amount value.");
+                              states(senderID, user.payload);
                             }
                           });
                         } else {
