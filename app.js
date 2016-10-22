@@ -375,12 +375,12 @@ function receivedMessage(event) {
         break;
       case 'logout':
         if (wordList.length == 1) {
-          db.users.findOne({ "$and": [{"fbUserId": senderID}, {"service.status": "unlinked"}]}, function(err, user) {
+          db.users.findOne({ "$and": [{"fbUserId": senderID}, {"service.status": "linked"}]}, function(err, user) {
             if (err)
               throw err;
             console.log(" in logout case");
             console.log(user);
-            if (!user) {
+            if (user) {
               sendAccountUnlinking(senderID);
             }
           });
