@@ -478,24 +478,31 @@ function receivedMessage(event) {
                           throw err;
                         }
                         if (result) {
-                          if (user.credit >= sharesAmount * user.payload.buyingPrice) {
-                            var payload = {
-                                state: "BUYING_STOCKS",
-                                part: 2,
-                                buyingPrice: user.payload.buyingPrice,
-                                sharesAmount: sharesAmount,
-                                recipient: {
-                                  id: senderID
-                                },
-                                companyId: user.payload.companyId,
-                                companyName: user.payload.companyName,
-                                companySymbol: user.payload.companySymbol
-                              };
-                            states(senderID, payload);
-                          } else {
-                            sendTextMessage(senderID, "Not enough balance.");
-                            states(senderID, user.payload);
-                          }
+                          db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
+                            if (err)
+                              throw err;
+
+                            if (userAccount) {
+                              if (userAccount.credit >= sharesAmount * user.payload.buyingPrice) {
+                                var payload = {
+                                    state: "BUYING_STOCKS",
+                                    part: 2,
+                                    buyingPrice: user.payload.buyingPrice,
+                                    sharesAmount: sharesAmount,
+                                    recipient: {
+                                      id: senderID
+                                    },
+                                    companyId: user.payload.companyId,
+                                    companyName: user.payload.companyName,
+                                    companySymbol: user.payload.companySymbol
+                                  };
+                                states(senderID, payload);
+                              } else {
+                                sendTextMessage(senderID, "Not enough balance.");
+                                states(senderID, user.payload);
+                              }
+                            }
+                          });
                         } else {
                           sendTextMessage(senderID, "Invalid amount value.");
                           states(senderID, user.payload);
