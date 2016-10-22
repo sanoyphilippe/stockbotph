@@ -318,7 +318,7 @@ module.exports = function() {
 				            			sendTextMessage(senderID, text, function(err, result) {
 				            				var query = {}
 				            				query["stocks." + payload.companySymbol] = payload.sharesAmount;
-				            				query["credit"] = payload.total * -1;
+				            				query["credit"] = roundup(payload.total, 2) * -1;
 
 				            				db.userAccounts.update({"fbUserId": senderID}, 
 				            					{
@@ -553,7 +553,7 @@ module.exports = function() {
 				            			sendTextMessage(senderID, text, function(err, result) {
 				            				var query = {}
 				            				query["stocks." + payload.companySymbol] = payload.sharesAmount * -1;
-				            				query["credit"] = payload.total;
+				            				query["credit"] = roundup(payload.total. 2);
 
 				            				db.userAccounts.update({"fbUserId": senderID}, 
 				            					{
