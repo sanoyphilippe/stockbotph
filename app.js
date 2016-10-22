@@ -569,7 +569,7 @@ function receivedMessage(event) {
                             if (userAccount.stocks && (sharesAmount > userAccount.stocks[user.payload.companySymbol])) {
                               sendTextMessage(senderID, "Not enough shares.");
                               states(senderID, user.payload);
-                            } else if (userAccountc.stocks) {
+                            } else if (userAccount.stocks) {
                               var payload = {
                                   state: "SELLING_STOCKS",
                                   part: 2,
