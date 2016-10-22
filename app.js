@@ -309,7 +309,13 @@ function receivedMessage(event) {
     switch (wordList[0].toLowerCase()) {
       case 'quote':
         if (wordList.length == 2) {
-          sendStockInfo(senderID, wordList[1].toUpperCase());
+          db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+            if (err)
+              throw err;
+            if (user) {
+              sendStockInfo(senderID, wordList[1].toUpperCase());
+            }
+          });
         }
         break;
       case 'buy':
@@ -318,17 +324,23 @@ function receivedMessage(event) {
             if (err)
               throw err;
             if (company) {
-              var payload = {
-                state: "BUYING_STOCKS",
-                part: 0,
-                recipient: {
-                  id: senderID
-                },
-                companyId: company._id,
-                companyName: company.name,
-                companySymbol: company.symbol
-              };
-              states(senderID, payload);
+              db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+                if (err)
+                  throw err;
+                if (user) {
+                  var payload = {
+                    state: "BUYING_STOCKS",
+                    part: 0,
+                    recipient: {
+                      id: senderID
+                    },
+                    companyId: company._id,
+                    companyName: company.name,
+                    companySymbol: company.symbol
+                  };
+                  states(senderID, payload);
+                }
+              });
             }
           });
         }
@@ -340,17 +352,23 @@ function receivedMessage(event) {
             if (err)
               throw err;
             if (company) {
-              var payload = {
-                state: "SELLING_STOCKS",
-                part: 0,
-                recipient: {
-                  id: senderID
-                },
-                companyId: company._id,
-                companyName: company.name,
-                companySymbol: company.symbol
-              };
-              states(senderID, payload);
+              db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+                if (err)
+                  throw err;
+                if (user) {
+                  var payload = {
+                    state: "SELLING_STOCKS",
+                    part: 0,
+                    recipient: {
+                      id: senderID
+                    },
+                    companyId: company._id,
+                    companyName: company.name,
+                    companySymbol: company.symbol
+                  };
+                  states(senderID, payload);
+                }
+              });
             }
           });
         }
@@ -408,7 +426,7 @@ function receivedMessage(event) {
         break;
       default:
         console.log("In default");
-        db.users.findOne({"fbUserId": senderID, "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
+        db.users.findOne({"fbUserId": senderID, "service.status": "linked", "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}]}, function(err, user) {
           if (err) {
             throw err;
           }
