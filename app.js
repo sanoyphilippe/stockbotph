@@ -517,6 +517,7 @@ function receivedMessage(event) {
                           states(senderID, user.payload);
                           throw err;
                         }
+                        
                         if (result) {
                           var payload = {
                                   state: "SELLING_STOCKS",
@@ -543,13 +544,14 @@ function receivedMessage(event) {
 
                   case 1:
                     var sharesAmount = parseInt(wordList[0]);
-                    if (!isNaN(buyingPrice)) {
+                    if (!isNaN(sharesAmount)) {
                       isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
                         if (err) {
-                          sendTextMessage(senderID, "Invalid amount value.");
+                          sendTextMessage(senderID, "An error occured.");
                           states(senderID, user.payload);
                           throw err;
                         }
+
                         if (result) {
                           if (user.stocks && (sharesAmount > user.stocks[user.payload.companySymbol])) {
                             sendTextMessage(senderID, "You do not have that amount.");

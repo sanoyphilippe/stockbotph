@@ -528,6 +528,8 @@ module.exports = function() {
           callback && callback(new Error("company not found", null));
         }
       });
+    } else {
+      callback && callback(new Error("Not a number"), null);
     }
   };
 
@@ -538,7 +540,7 @@ module.exports = function() {
           callback && callback(err, null);
         if (company) {
           var lot_size = getLotSize(company.currentPrice);
-          const remainder = amount % tick_size;
+          const remainder = amount % lot_size;
           if (remainder == 0) {
             callback && callback(null, true);
           } else {
@@ -549,6 +551,8 @@ module.exports = function() {
           callback && callback(new Error("company not found", null));
         }
       });
+    } else {
+      callback && callback(new Error("Not a number"), null);
     }
   };
 
