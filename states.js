@@ -3,10 +3,12 @@ require('./utils.js')();
 module.exports = function() {
 	this.states = function(senderID, payload) {
 		if (payload) {
+			console.log("payload is: " + payload)
       db.users.update({'fbUserId': senderID}, {"$set": {"payload": payload}}, function(err, user) {
         if (err)
           throw err;
         if (user) {
+        	console.log("payload inside is: " + payload);
           switch (payload.state) {
             case 'USER_SETUP':
               db.users.update({"fbUserId": senderID}, {"$inc": {"riskPreferenceValue": payload.value, "riskDivisor": payload.divisorValue}}, function(err, result) {
