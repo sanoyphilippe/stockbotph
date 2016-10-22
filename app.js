@@ -448,7 +448,7 @@ function receivedMessage(event) {
                           var payload = {
                                   state: "BUYING_STOCKS",
                                   part: 1,
-                                  buyingPrice: formatValue(buyingPrice),
+                                  buyingPrice: formatPriceValue(buyingPrice),
                                   recipient: {
                                     id: senderID
                                   },
@@ -534,7 +534,7 @@ function receivedMessage(event) {
                           var payload = {
                                   state: "SELLING_STOCKS",
                                   part: 1,
-                                  sellingPrice: formatValue(sellingPrice),
+                                  sellingPrice: formatPriceValue(sellingPrice),
                                   recipient: {
                                     id: senderID
                                   },

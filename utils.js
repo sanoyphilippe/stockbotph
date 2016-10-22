@@ -379,9 +379,8 @@ module.exports = function() {
 
   this.removeExtraDecimals = function (price, tick_size) {
     var decimalPlaces = getDecimalPlaces(tick_size);
-    var regulator = Math.pow(10, decimalPlaces);
 
-    price = roundup(price * regulator, decimalPlaces)/regulator;
+    price = roundup(price, decimalPlaces);
     return price;
   }
 
@@ -487,11 +486,12 @@ module.exports = function() {
      salesTax = sub_total * 0.005; 
     }
 
-    const total_fees = roundup((commission + vat + pseTransFee + sccp + salesTax)*100, 2)/100;
+    const total_fees = roundup(commission + vat + pseTransFee + sccp + salesTax, 2);
+    console.log(total_fees);
     return total_fees;
   };
 
-  this.formatValue = function(value) {
+  this.formatPriceValue = function(value) {
     if (!isNaN(value)) {
       return removeExtraDecimals(value, getTickSize(value));
     }

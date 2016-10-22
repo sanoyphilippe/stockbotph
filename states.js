@@ -152,11 +152,11 @@ module.exports = function() {
 				            			var text = company.symbol + " is trading at "
 				            			+ prettifyNumber(company.currentPrice) + "."
 				            			+ "\nYou have PHP " + prettifyNumber(user.credit)
-				            			+ "and can buy up to " + max_transactions * lot_size + " shares.";
+				            			+ "and can buy up to " + prettifyNumber(max_transactions * lot_size) + " shares.";
 				            			
 				            			if (user.stocks) {
 				            				if (user.stocks[company.currentSymbol]) {
-				            					text += "\nYou have " + user.stocks[company.currentSymbol] + " shares of " + company.symbol + ".";
+				            					text += "\nYou have " + prettifyNumber(user.stocks[company.currentSymbol]) + " shares of " + company.symbol + ".";
 				            				}
 				            			}
 				            			//sendTextMessage(senderID, text);
@@ -283,12 +283,13 @@ module.exports = function() {
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.buyingPrice, payload.sharesAmount);
-				            			const total = roundup(((payload.buyingPrice * payload.sharesAmount) + fees) * 100, 2)/100;
+				            			const total = roundup((payload.buyingPrice * payload.sharesAmount) + fees, 2);
+				            			console.log(total);
 				            			var textInfo = "Buying stocks of " + company.symbol
-				            				+ "\nPrice: " + payload.buyingPrice
-				            				+ "\nShares: " + payload.sharesAmount
-				            				+ "\nFees: " + fees
-				            				+ "\nTotal: " + total;
+				            				+ "\nPrice: " + prettifyNumber(payload.buyingPrice)
+				            				+ "\nShares: " + prettifyNumber(payload.sharesAmount)
+				            				+ "\nFees: " + prettifyNumber(fees)
+				            				+ "\nTotal: " + prettifyNumber(total);
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
@@ -387,11 +388,11 @@ module.exports = function() {
 				            		case 0:
 				            			var text = company.symbol + " is trading at "
 				            			+ prettifyNumber(company.currentPrice) + "."
-				            			+ "\nYou can sell up to " + max_transactions * lot_size + " shares.";
+				            			+ "\nYou can sell up to " + prettifyNumber(max_transactions * lot_size) + " shares.";
 				            			
 				            			if (user.stocks) {
 				            				if (user.stocks[company.currentSymbol]) {
-				            					text += "\nYou have " + user.stocks[company.currentSymbol] + " shares of " + company.symbol + ".";
+				            					text += "\nYou have " + prettifyNumber(user.stocks[company.currentSymbol]) + " shares of " + company.symbol + ".";
 				            				}
 				            			}
 				            			//sendTextMessage(senderID, text);
@@ -518,12 +519,12 @@ module.exports = function() {
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.sellingPrice, payload.sharesAmount);
-				            			const total = roundup(((payload.sellingPrice * payload.sharesAmount) + fees) * 100, 2)/100;
+				            			const total = roundup((payload.sellingPrice * payload.sharesAmount) + fees, 2);
 				            			var textInfo = "Selling stocks of " + company.symbol
-				            				+ "\nPrice: " + payload.sellingPrice
-				            				+ "\nShares: " + payload.sharesAmount
-				            				+ "\nFees: " + fees
-				            				+ "\nTotal: " + total;
+				            				+ "\nPrice: " + prettifyNumber(payload.sellingPrice)
+				            				+ "\nShares: " + prettifyNumber(payload.sharesAmount)
+				            				+ "\nFees: " + prettifyNumber(fees)
+				            				+ "\nTotal: " + prettifyNumber(total);
 			            				var quickReplies = [
 				                    {
 				                      content_type:"text",
