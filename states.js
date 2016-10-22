@@ -120,13 +120,13 @@ module.exports = function() {
                     + "\nand the number of shares you have for this company."
                     ];
                   sendTextMessage(senderID, text[0]);
-                  for (var i = 100000000000; i >= 0; i--) {
+                  for (var i = 100000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[1]);
-                  for (var i = 100000000000; i >= 0; i--) {
+                  for (var i = 100000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[2]);
-                  for (var i = 100000000000; i >= 0; i--) {
+                  for (var i = 100000000; i >= 0; i--) {
                   }
                   sendTextMessage(senderID, text[3]);
                   break;
