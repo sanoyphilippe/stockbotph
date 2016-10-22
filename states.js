@@ -553,7 +553,7 @@ module.exports = function() {
 				            			sendTextMessage(senderID, text, function(err, result) {
 				            				var query = {}
 				            				query["stocks." + payload.companySymbol] = payload.sharesAmount * -1;
-				            				query["credit"] = roundup(payload.total. 2);
+				            				query["credit"] = roundup(payload.total, 2);
 
 				            				db.userAccounts.update({"fbUserId": senderID}, 
 				            					{
