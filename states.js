@@ -519,7 +519,7 @@ module.exports = function() {
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.sellingPrice, payload.sharesAmount);
-				            			const total = roundup((payload.sellingPrice * payload.sharesAmount) + fees, 2);
+				            			const total = roundup((payload.sellingPrice * payload.sharesAmount) - fees, 2);
 				            			var textInfo = "Selling stocks of " + company.symbol
 				            				+ "\nPrice: " + prettifyNumber(payload.sellingPrice)
 				            				+ "\nShares: " + prettifyNumber(payload.sharesAmount)
