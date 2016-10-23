@@ -346,7 +346,7 @@ module.exports = function() {
         // var messageId = body.message_id;
         console.log("Got user info: ");
         console.log(body);
-        callback && callback(null, body);
+        callback && callback(null, JSON.parse(body));
       } else if (response && body) {
         console.error("Failed calling Get user info API", response.statusCode, response.statusMessage, body.error);
         callback && callback(new Error("Failed to get user info."), null);

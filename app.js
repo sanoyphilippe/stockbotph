@@ -722,8 +722,6 @@ function receivedPostback(event) {
     if (err)
       throw err;
     if (info) {
-      console.log("User has profile: ")
-      console.log(info);
       var payload = {};
       const userInfo = info;
       if (event.postback.payload == "USER_SETUP") {
