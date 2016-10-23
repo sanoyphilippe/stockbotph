@@ -722,18 +722,22 @@ function receivedPostback(event) {
     if (err)
       throw err;
     if (info) {
-      var paylooad = {};
+      var payload = {};
       var userInfo = info;
       if (event.postback.payload == "USER_SETUP") {
-        const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
+        db.users.insert({"fbUserId": senderID, "fbInfo": userInfo, "newUser": true}, function(err, result) {
+          if (err) 
+            throw err;
+          if (result) {
+            const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
               + "\nLet us get you started.";
-        sendGetStarted(senderID, newUserText);
-        payload = { state: "USER_SETUP", done: false, part: 0, value: 0, divisorValue: 0};
+            sendGetStarted(senderID, newUserText);
+          }
+        });
       } else {
         payload = JSON.parse(event.postback.payload); 
+        states(senderID, payload);
       }
-      states(senderID, payload);
-
       console.log("Received postback for user %d and page %d with payload '%s' " +
         "at %d", senderID, recipientID, payload, timeOfPostback);
     }
