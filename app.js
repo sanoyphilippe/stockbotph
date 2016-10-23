@@ -307,8 +307,6 @@ function receivedMessage(event) {
       if (err)
         throw err;
       if (info) {
-        console.log("User has profile: ")
-        console.log(info);
         var userInfo = info;
         const initialText = "Hi " + userInfo.first_name + " please login to your account to get started.";
         const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
@@ -724,14 +722,18 @@ function receivedPostback(event) {
     if (err)
       throw err;
     if (info) {
+      console.log("User has profile: ")
+      console.log(info);
       var payload = {};
-      var userInfo = info;
+      const userInfo = info;
       if (event.postback.payload == "USER_SETUP") {
         db.users.insert({"fbUserId": senderID, "fbInfo": userInfo, "newUser": true}, function(err, result) {
           if (err) 
             throw err;
           if (result) {
-            const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
+            console.log("User info is: ");
+            console.log(userInfo);
+            const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo['first_name']
               + "\nLet us get you started.";
             sendGetStarted(senderID, newUserText);
           }
