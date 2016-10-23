@@ -205,74 +205,79 @@ module.exports = function() {
 				            			break;
 				            		case 1:
 				            			max_transactions = Math.floor(user.credit / (lot_size * payload.buyingPrice));
-				            			var textInfo = "How many shares would you like to buy?";
-			            				var quickReplies = [
-				                    {
-				                      content_type:"text",
-				                      title: "" + prettifyNumber(max_transactions * lot_size),
-				                      payload: JSON.stringify({
-	                              state: "BUYING_STOCKS",
-	                              part: 2,
-	                              buyingPrice: payload.buyingPrice,
-	                              sharesAmount: max_transactions * lot_size,
-	                              recipient: {
-	                                id: senderID
-	                              },
-	                              companyId: company._id,
-	                              companyName: company.name,
-	                              companySymbol: company.symbol
-	                            })
-				                    },
-				                    {
-				                      "content_type":"text",
-				                      "title": "" + prettifyNumber((Math.floor(max_transactions/2)) * lot_size),
-				                      payload: JSON.stringify({
-	                              state: "BUYING_STOCKS",
-	                              part: 2,
-	                              buyingPrice: payload.buyingPrice,
-	                              sharesAmount: (Math.floor(max_transactions/2)) * lot_size,
-	                              recipient: {
-	                                id: senderID
-	                              },
-	                              companyId: company._id,
-	                              companyName: company.name,
-	                              companySymbol: company.symbol
-	                            })
-				                    },
-				                    {
-				                      "content_type":"text",
-				                      "title": "" + prettifyNumber((Math.floor(max_transactions/3)) * lot_size),
-				                      payload: JSON.stringify({
-	                              state: "BUYING_STOCKS",
-	                              part: 2,
-	                              buyingPrice: payload.buyingPrice,
-	                              sharesAmount: (Math.floor(max_transactions/3)) * lot_size,
-	                              recipient: {
-	                                id: senderID
-	                              },
-	                              companyId: company._id,
-	                              companyName: company.name,
-	                              companySymbol: company.symbol
-	                            })
-				                    },
-				                    {
-				                      "content_type":"text",
-				                      "title": "" + prettifyNumber((Math.floor(max_transactions/4)) * lot_size),
-				                      payload: JSON.stringify({
-	                              state: "BUYING_STOCKS",
-	                              part: 2,
-	                              buyingPrice: payload.buyingPrice,
-	                              sharesAmount: (Math.floor(max_transactions/4)) * lot_size,
-	                              recipient: {
-	                                id: senderID
-	                              },
-	                              companyId: company._id,
-	                              companyName: company.name,
-	                              companySymbol: company.symbol
-	                            })
-				                    }
-				                  ];
-				                  sendQuickReply(senderID, textInfo, quickReplies);
+				            			if (max_transactions == 0) {
+				            				var textInfo = "You don't have enough balance to buy at that price.";
+				            				sendTextMessage(senderID, textInfo);
+				            			} else {
+				            				var textInfo = "How many shares would you like to buy?";
+				            				var quickReplies = [
+					                    {
+					                      content_type:"text",
+					                      title: "" + prettifyNumber(max_transactions * lot_size),
+					                      payload: JSON.stringify({
+		                              state: "BUYING_STOCKS",
+		                              part: 2,
+		                              buyingPrice: payload.buyingPrice,
+		                              sharesAmount: max_transactions * lot_size,
+		                              recipient: {
+		                                id: senderID
+		                              },
+		                              companyId: company._id,
+		                              companyName: company.name,
+		                              companySymbol: company.symbol
+		                            })
+					                    },
+					                    {
+					                      "content_type":"text",
+					                      "title": "" + prettifyNumber((Math.floor(max_transactions/2)) * lot_size),
+					                      payload: JSON.stringify({
+		                              state: "BUYING_STOCKS",
+		                              part: 2,
+		                              buyingPrice: payload.buyingPrice,
+		                              sharesAmount: (Math.floor(max_transactions/2)) * lot_size,
+		                              recipient: {
+		                                id: senderID
+		                              },
+		                              companyId: company._id,
+		                              companyName: company.name,
+		                              companySymbol: company.symbol
+		                            })
+					                    },
+					                    {
+					                      "content_type":"text",
+					                      "title": "" + prettifyNumber((Math.floor(max_transactions/3)) * lot_size),
+					                      payload: JSON.stringify({
+		                              state: "BUYING_STOCKS",
+		                              part: 2,
+		                              buyingPrice: payload.buyingPrice,
+		                              sharesAmount: (Math.floor(max_transactions/3)) * lot_size,
+		                              recipient: {
+		                                id: senderID
+		                              },
+		                              companyId: company._id,
+		                              companyName: company.name,
+		                              companySymbol: company.symbol
+		                            })
+					                    },
+					                    {
+					                      "content_type":"text",
+					                      "title": "" + prettifyNumber((Math.floor(max_transactions/4)) * lot_size),
+					                      payload: JSON.stringify({
+		                              state: "BUYING_STOCKS",
+		                              part: 2,
+		                              buyingPrice: payload.buyingPrice,
+		                              sharesAmount: (Math.floor(max_transactions/4)) * lot_size,
+		                              recipient: {
+		                                id: senderID
+		                              },
+		                              companyId: company._id,
+		                              companyName: company.name,
+		                              companySymbol: company.symbol
+		                            })
+					                    }
+					                  ];
+					                  sendQuickReply(senderID, textInfo, quickReplies);
+				            			}
 				            			break;
 				            		case 2:
 				            			const fees = getFees(payload.state, payload.buyingPrice, payload.sharesAmount);
@@ -335,6 +340,28 @@ module.exports = function() {
 				            										+ " shares of " + company.symbol
 				            										+ "\nYou now have " + prettifyNumber(user.stocks[company.symbol]) + " shares of "
 				            										+ company.symbol;
+				            									sendTextMessage(senderID, text, function(err, result) {
+				            										if (err)
+				            											throw err;
+				            										db.users.update({"fbUserId": senderID}, 
+				            											{
+				            												"$set": {
+				            													"payload": JSON.stringify({
+				            														state: "IDLE",
+				            														part: 0
+				            													})
+				            												}
+				            											});
+				            									});
+				            								}
+				            							});
+				            						} else {
+				            							db.userAccounts.findOne({"fbUserId": senderID}, function(err, user) {
+				            								if (err)
+				            									throw err;
+				            								if (user) {
+				            									text = "Failed to buy " + prettifyNumber(payload.sharesAmount) 
+				            										+ " shares of " + company.symbol;
 				            									sendTextMessage(senderID, text, function(err, result) {
 				            										if (err)
 				            											throw err;

@@ -319,6 +319,25 @@ function receivedMessage(event) {
             throw err;
           if (user) {
             switch (wordList[0].toLowerCase()) {
+              case 'balance': 
+                if (user.service && user.service.status == "linked") {
+                  if (user.payload && user.payload.state != "USER_SETUP") {
+                    db.userAccounts.findOne({"fbUserId": senderID}, function(err, account) {
+                      if (err)
+                        throw err;
+                      if (account) {
+                        var textBalance = "Hi " + user.name.firstName +"\nYou currently have PHP " + account.credit + " in your account.";
+                        sendTextMessage(senderID, textBalance);
+                      }
+                    });
+                  } else if (user.payload && user.payload.state == "USER_SETUP") {
+                    sendTextMessage(senderID, "Please finish the inital setup.");
+                    states(senderID, user.payload);
+                  }
+                } else {
+                  sendAccountLinking(senderID, initialText);
+                }
+                break;
               case 'quote':
                 if (wordList.length == 2) {
                   if (user.service && user.service.status == "linked") {
