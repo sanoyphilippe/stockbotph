@@ -719,22 +719,27 @@ function receivedPostback(event) {
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
   var paylooad = {}
-  if (event.postback.payload == "USER_SETUP") {
-    const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
-          + "\nLet us get you started.";
-    sendGetStarted(senderID, newUserText);
-    payload = { state: "USER_SETUP", done: false, part: 0, value: 0, divisorValue: 0};
-  } else {
-    payload = JSON.parse(event.postback.payload); 
-  }
-  states(senderID, payload);
+  getUserInfo(senderID, function(err, info){
+    if (err)
+      throw err;
+    if (info) {
+      var userInfo = info;
+      if (event.postback.payload == "USER_SETUP") {
+        const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
+              + "\nLet us get you started.";
+        sendGetStarted(senderID, newUserText);
+        payload = { state: "USER_SETUP", done: false, part: 0, value: 0, divisorValue: 0};
+      } else {
+        payload = JSON.parse(event.postback.payload); 
+      }
+      states(senderID, payload);
 
-  console.log("Received postback for user %d and page %d with payload '%s' " +
-    "at %d", senderID, recipientID, payload, timeOfPostback);
-
+      console.log("Received postback for user %d and page %d with payload '%s' " +
+        "at %d", senderID, recipientID, payload, timeOfPostback);
+    }
+  });
   // When a postback is called, we'll send a message back to the sender to
   // let them know it was successful
-  //sendTextMessage(senderID, "Postback called");
 }
 
 /*
