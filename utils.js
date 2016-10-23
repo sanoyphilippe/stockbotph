@@ -110,10 +110,11 @@ module.exports = function() {
     var authCode = event.account_linking.authorization_code;
 
     if (status == "linked") {
-      db.users.find({"fbUserId": senderID}, function(err, user) {
+      db.users.findOne({"fbUserId": senderID}, function(err, user) {
         if (err)
           throw err;
         if (user && user.newUser) {
+          console.log("Registering new user");
           var fbDetails = {};
           fbDetails['fbUserId'] = user.fbUserId;
           fbDetails['fbInfo'] = user.fbInfo;
@@ -133,6 +134,7 @@ module.exports = function() {
             }
           });
         } else if (user) {
+          console.log("Logging in existing user");
           var fbDetails = {};
           fbDetails['fbUserId'] = user.fbUserId;
           fbDetails['fbInfo'] = user.fbInfo;
