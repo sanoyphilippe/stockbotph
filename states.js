@@ -207,12 +207,12 @@ module.exports = function() {
 				            			max_transactions = Math.floor(user.credit / (lot_size * payload.buyingPrice));
 				            			if (max_transactions == 0) {
 				            				var textInfo = "You don't have enough balance to buy at that price.";
-				            				var payload = {
+				            				var newpayload = {
 	                              state: "IDLE",
 	                              part: 0
 	                            };
 				            				sendTextMessage(senderID, textInfo);
-	                          states(senderID, payload);
+	                          states(senderID, newpayload);
 				            			} else {
 				            				var textInfo = "How many shares would you like to buy?";
 				            				var quickReplies = [
