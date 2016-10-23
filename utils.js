@@ -63,7 +63,7 @@ module.exports = function() {
                     throw err;
                   console.log(userAccount);
                   if (userAccount) {
-                    var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + userAccount.credit + ".";
+                    var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(userAccount.credit) + ".";
                     sendTextMessage(senderID, text);
                   } else {
                     db.userAccounts.update({"email": user.email}, {"$set": {"fbUserId": senderID}}, function(err, userAccountUpdate) {
@@ -73,7 +73,7 @@ module.exports = function() {
                       console.log(userAccountUpdate);
                       if (userAccountUpdate.result.nModified > 0) {
                         db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
-                          var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + entry.credit + ".";
+                          var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(entry.credit) + ".";
                           sendTextMessage(senderID, text);
 
                           var newpayload = { 
@@ -195,7 +195,7 @@ module.exports = function() {
    * Send a message with the account linking call-to-action
    *
    */
-  this.sendAccountLinking = function (recipientId) {
+  this.sendAccountLinking = function (recipientId, text) {
     var messageData = {
       recipient: {
         id: recipientId
@@ -205,7 +205,7 @@ module.exports = function() {
           type: "template",
           payload: {
             template_type: "button",
-            text: "Welcome. Link your account.",
+            text: text,
             buttons:[{
               type: "account_link",
               url: SERVER_URL + "/authorize"
@@ -252,7 +252,7 @@ module.exports = function() {
     }
   }
 
-  this.getUserInfo = function (userId) {
+  this.getUserInfo = function (userId, callback) {
     request({
       uri: 'https://graph.facebook.com/v2.6/'+ userId +'/',
       qs: { fields: "first_name,last_name,profile_pic,locale,timezone,gender",
@@ -265,10 +265,13 @@ module.exports = function() {
         // var messageId = body.message_id;
         console.log("Got user info: ");
         console.log(body);
+        callback && callback(null, body);
       } else if (response && body) {
         console.error("Failed calling Get user info API", response.statusCode, response.statusMessage, body.error);
+        callback && callback(new Error("Failed to get user info."), null);
       } else {
         console.error("Failed calling Get user info API: Unknown error occured");
+        callback && callback(new Error("unknown error occured."), null);
       }
     });
   }

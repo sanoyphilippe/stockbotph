@@ -303,6 +303,15 @@ function receivedMessage(event) {
     // If we receive a text message, check to see if it matches any special
     // keywords and send back the corresponding example. Otherwise, just echo
     // the text we received.
+    var userInfo = null;
+    getUserInfo(senderID, function(err, info) {
+      if (err)
+        throw err;
+      if (info) {
+        userInfo = info;
+      }
+    });
+    const initialText = "Hi " + userInfo.first_name + " please login your account to get started.";
     var wordList = messageText.split(" ");
     console.log(messageText);
     console.log(wordList);
@@ -314,6 +323,8 @@ function receivedMessage(event) {
               throw err;
             if (user) {
               sendStockInfo(senderID, wordList[1].toUpperCase());
+            } else {
+              sendAccountLinking(senderID, initialText);
             }
           });
         }
@@ -339,6 +350,8 @@ function receivedMessage(event) {
                     companySymbol: company.symbol
                   };
                   states(senderID, payload);
+                } else {
+                  sendAccountLinking(senderID, initialText);
                 }
               });
             }
@@ -367,6 +380,8 @@ function receivedMessage(event) {
                     companySymbol: company.symbol
                   };
                   states(senderID, payload);
+                } else {
+                  sendAccountLinking(senderID, initialText);
                 }
               });
             }
@@ -395,116 +410,211 @@ function receivedMessage(event) {
             console.log(" in login case");
             console.log(user);
             if (!user) {
-              sendAccountLinking(senderID);
+              sendAccountLinking(senderID, initialText);
             }
           });
         }
         break;
       case 'help':
-        if (wordList.length == 2) {
-          switch(wordList[1].toLowerCase()) {
-            case 'quote':
-              var text = "quote <stock_ticker_symbol> :\nThis command shows information about specific comapny stocks.\n"
-                    + "<stock_ticker_symbol> should be the given symbol for that specific company.\n"
-                    + "i.e. BPI (for Bank of the Philippine Islands)";
+        db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
+          if (err)
+            throw err;
+          if (user) {
+            if (wordList.length == 2) {
+              switch(wordList[1].toLowerCase()) {
+                case 'quote':
+                  var text = "quote <stock_ticker_symbol> :\nThis command shows information about specific comapny stocks.\n"
+                        + "<stock_ticker_symbol> should be the given symbol for that specific company.\n"
+                        + "i.e. BPI (for Bank of the Philippine Islands)";
+                  sendTextMessage(senderID, text);
+                  break;
+                case 'buy':
+                  var text = "buy <stock_ticker_symbol> :\nThis command initiates buying of stocks for the specified company.\n"
+                        + "This will also show how much credit you have in your account,\nthe maximum number of shares you can buy,"
+                        + "\nand the number of shares you have for this company.";
+                  sendTextMessage(senderID, text);
+                  break;
+                case 'sell':
+                  var text = "sell <stock_ticker_symbol> :\nThis command initiates selling of stocks for the specified company.\n"
+                        + "This will also show how much credit you have in your account,\nthe maximum number of shares you can sell,"
+                        + "\nand the number of shares you have for this company.";
+                  sendTextMessage(senderID, text);
+                  break;
+                case 'login':
+                  var text = "login:\nSends to the user a button link to initiate the login/registration process.";
+                  sendTextMessage(senderID, text);
+                  break;
+                case 'logout':
+                  var text = "logout:\nSends to the user a button link to initiate the logout process.";
+                  sendTextMessage(senderID, text);
+                  break;
+                default:
+                  sendTextMessage(senderID, "unrecognized command");
+              } 
+            } else if (wordList.length == 1) {
+              var text = "List of command names: " + "\nquote, buy, sell, login, logout";
               sendTextMessage(senderID, text);
-              break;
-            case 'buy':
-              var text = "buy <stock_ticker_symbol> :\nThis command initiates buying of stocks for the specified company.\n"
-                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can buy,"
-                    + "\nand the number of shares you have for this company.";
-              sendTextMessage(senderID, text);
-              break;
-            case 'sell':
-              var text = "sell <stock_ticker_symbol> :\nThis command initiates selling of stocks for the specified company.\n"
-                    + "This will also show how much credit you have in your account,\nthe maximum number of shares you can sell,"
-                    + "\nand the number of shares you have for this company.";
-              sendTextMessage(senderID, text);
-              break;
-            case 'login':
-              var text = "login:\nSends to the user a button link to initiate the login/registration process.";
-              sendTextMessage(senderID, text);
-              break;
-            case 'logout':
-              var text = "logout:\nSends to the user a button link to initiate the logout process.";
-              sendTextMessage(senderID, text);
-              break;
-            default:
-              sendTextMessage(senderID, "unrecognized command");
+            }
+          } else {
+            sendAccountLinking(senderID, initialText);
           }
-        } else if (wordList.length == 1) {
-          var text = "List of command names: " + "\nquote, buy, sell, login, logout";
-          sendTextMessage(senderID, text);
-        }
+        });
         break;
       default:
         console.log("In default");
-        db.users.findOne({"fbUserId": senderID, "service.status": "linked", "$or": [{"payload.state": "BUYING_STOCKS"}, {"payload.state": "SELLING_STOCKS"}, {"payload.state": "USER_SETUP"}]}, function(err, user) {
+        db.users.findOne({"fbUserId": senderID, "service.status": "linked"}, function(err, user) {
           if (err) {
             throw err;
           }
           if (user) {
-            switch(user.payload.state) {
-              case "USER_SETUP":
-                sendTextMessage(senderID, "Please finish the inital setup.");
-                states(senderID, user.payload);
-                break;
-              case "BUYING_STOCKS":
-                switch(user.payload.part) {
-                  case 0:
-                    var buyingPrice = parseFloat(wordList[0].replace(/,/g, ""));
+            if (user.payload) {
+              switch(user.payload.state) {
+                case "USER_SETUP":
+                  sendTextMessage(senderID, "Please finish the inital setup.");
+                  states(senderID, user.payload);
+                  break;
+                case "BUYING_STOCKS":
+                  switch(user.payload.part) {
+                    case 0:
+                      var buyingPrice = parseFloat(wordList[0].replace(/,/g, ""));
 
-                    if (!isNaN(buyingPrice)) {
-                      isValidPrice(buyingPrice, user.payload.companySymbol, function(err, result) {
-                        if (err) {
-                          sendTextMessage(senderID, "An error occured.");
-                          states(senderID, user.payload);
-                          throw err;
-                        }
-                        if (result) {
-                          var payload = {
-                                  state: "BUYING_STOCKS",
-                                  part: 1,
-                                  buyingPrice: formatPriceValue(buyingPrice),
-                                  recipient: {
-                                    id: senderID
-                                  },
-                                  companyId: user.payload.companyId,
-                                  companyName: user.payload.companyName,
-                                  companySymbol: user.payload.companySymbol
-                                };
-                          states(senderID, payload);
-                        } else {
-                          sendTextMessage(senderID, "Invalid price value.");
-                          states(senderID, user.payload);
-                        }
-                      });
-                    } else {
-                      sendTextMessage(senderID, "Invalid price value.");
-                      states(senderID, user.payload);
-                    }
-                    break;
-
-                  case 1:
-                    var sharesAmount = parseFloat(wordList[0].replace(/,/g, ""));
-                    if (!isNaN(sharesAmount)) {
-                      isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
-                        if (err) {
-                          sendTextMessage(senderID, "Invalid amount value.");
-                          states(senderID, user.payload);
-                          throw err;
-                        }
-                        if (result) {
-                          db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
-                            if (err)
-                              throw err;
-
-                            if (userAccount) {
-                              if (userAccount.credit >= sharesAmount * user.payload.buyingPrice) {
-                                var payload = {
+                      if (!isNaN(buyingPrice)) {
+                        isValidPrice(buyingPrice, user.payload.companySymbol, function(err, result) {
+                          if (err) {
+                            sendTextMessage(senderID, "An error occured.");
+                            states(senderID, user.payload);
+                            throw err;
+                          }
+                          if (result) {
+                            var payload = {
                                     state: "BUYING_STOCKS",
+                                    part: 1,
+                                    buyingPrice: formatPriceValue(buyingPrice),
+                                    recipient: {
+                                      id: senderID
+                                    },
+                                    companyId: user.payload.companyId,
+                                    companyName: user.payload.companyName,
+                                    companySymbol: user.payload.companySymbol
+                                  };
+                            states(senderID, payload);
+                          } else {
+                            sendTextMessage(senderID, "Invalid price value.");
+                            states(senderID, user.payload);
+                          }
+                        });
+                      } else {
+                        sendTextMessage(senderID, "Invalid price value.");
+                        states(senderID, user.payload);
+                      }
+                      break;
+
+                    case 1:
+                      var sharesAmount = parseFloat(wordList[0].replace(/,/g, ""));
+                      if (!isNaN(sharesAmount)) {
+                        isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
+                          if (err) {
+                            sendTextMessage(senderID, "Invalid amount value.");
+                            states(senderID, user.payload);
+                            throw err;
+                          }
+                          if (result) {
+                            db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
+                              if (err)
+                                throw err;
+
+                              if (userAccount) {
+                                if (userAccount.credit >= sharesAmount * user.payload.buyingPrice) {
+                                  var payload = {
+                                      state: "BUYING_STOCKS",
+                                      part: 2,
+                                      buyingPrice: user.payload.buyingPrice,
+                                      sharesAmount: sharesAmount,
+                                      recipient: {
+                                        id: senderID
+                                      },
+                                      companyId: user.payload.companyId,
+                                      companyName: user.payload.companyName,
+                                      companySymbol: user.payload.companySymbol
+                                    };
+                                  states(senderID, payload);
+                                } else {
+                                  sendTextMessage(senderID, "Not enough balance.");
+                                  states(senderID, user.payload);
+                                }
+                              }
+                            });
+                          } else {
+                            sendTextMessage(senderID, "Invalid amount value.");
+                            states(senderID, user.payload);
+                          }
+                        });  
+                      } else {
+                        sendTextMessage(senderID, "Invalid amount value.");
+                        states(senderID, user.payload);
+                      }
+                      break;
+                    default:
+                      states(senderID, user.payload);
+                  }
+                  break;
+                case "SELLING_STOCKS":
+                  switch(user.payload.part) {
+                    case 0:
+                      var sellingPrice = parseFloat(wordList[0].replace(/,/g, ""));
+
+                      if (!isNaN(sellingPrice)) {
+                        isValidPrice(sellingPrice, user.payload.companySymbol, function(err, result) {
+                          if (err) {
+                            sendTextMessage(senderID, "An error occured.");
+                            states(senderID, user.payload);
+                            throw err;
+                          }
+
+                          if (result) {
+                            var payload = {
+                                    state: "SELLING_STOCKS",
+                                    part: 1,
+                                    sellingPrice: formatPriceValue(sellingPrice),
+                                    recipient: {
+                                      id: senderID
+                                    },
+                                    companyId: user.payload.companyId,
+                                    companyName: user.payload.companyName,
+                                    companySymbol: user.payload.companySymbol
+                                  };
+                            states(senderID, payload);
+                          } else {
+                            sendTextMessage(senderID, "Invalid price value.");
+                            states(senderID, user.payload);
+                          }
+                        });
+                      } else {
+                        sendTextMessage(senderID, "Invalid price value.");
+                        states(senderID, user.payload);
+                      }
+                      break;
+
+                    case 1:
+                      var sharesAmount = parseFloat(wordList[0].replace(/,/g, ""));
+                      if (!isNaN(sharesAmount)) {
+                        isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
+                          if (err) {
+                            sendTextMessage(senderID, "An error occured.");
+                            states(senderID, user.payload);
+                            throw err;
+                          }
+
+                          if (result) {
+                            db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
+                              if (userAccount.stocks && (sharesAmount > userAccount.stocks[user.payload.companySymbol])) {
+                                sendTextMessage(senderID, "Not enough shares.");
+                                states(senderID, user.payload);
+                              } else if (userAccount.stocks) {
+                                var payload = {
+                                    state: "SELLING_STOCKS",
                                     part: 2,
-                                    buyingPrice: user.payload.buyingPrice,
+                                    sellingPrice: user.payload.sellingPrice,
                                     sharesAmount: sharesAmount,
                                     recipient: {
                                       id: senderID
@@ -515,116 +625,33 @@ function receivedMessage(event) {
                                   };
                                 states(senderID, payload);
                               } else {
-                                sendTextMessage(senderID, "Not enough balance.");
+                                console.log(userAccount)
+                                sendTextMessage(senderID, "Invalid amount value.");
                                 states(senderID, user.payload);
                               }
-                            }
-                          });
-                        } else {
-                          sendTextMessage(senderID, "Invalid amount value.");
-                          states(senderID, user.payload);
-                        }
-                      });  
-                    } else {
-                      sendTextMessage(senderID, "Invalid amount value.");
+                            });
+                          } else {
+                            sendTextMessage(senderID, "Invalid amount value.");
+                            states(senderID, user.payload);
+                          }
+                        });  
+                      } else {
+                        sendTextMessage(senderID, "Invalid amount value.");
+                        states(senderID, user.payload);
+                      }
+                      break;
+                    default:
                       states(senderID, user.payload);
-                    }
-                    break;
-                  default:
-                    states(senderID, user.payload);
-                }
-                break;
-              case "SELLING_STOCKS":
-                switch(user.payload.part) {
-                  case 0:
-                    var sellingPrice = parseFloat(wordList[0].replace(/,/g, ""));
-
-                    if (!isNaN(sellingPrice)) {
-                      isValidPrice(sellingPrice, user.payload.companySymbol, function(err, result) {
-                        if (err) {
-                          sendTextMessage(senderID, "An error occured.");
-                          states(senderID, user.payload);
-                          throw err;
-                        }
-
-                        if (result) {
-                          var payload = {
-                                  state: "SELLING_STOCKS",
-                                  part: 1,
-                                  sellingPrice: formatPriceValue(sellingPrice),
-                                  recipient: {
-                                    id: senderID
-                                  },
-                                  companyId: user.payload.companyId,
-                                  companyName: user.payload.companyName,
-                                  companySymbol: user.payload.companySymbol
-                                };
-                          states(senderID, payload);
-                        } else {
-                          sendTextMessage(senderID, "Invalid price value.");
-                          states(senderID, user.payload);
-                        }
-                      });
-                    } else {
-                      sendTextMessage(senderID, "Invalid price value.");
-                      states(senderID, user.payload);
-                    }
-                    break;
-
-                  case 1:
-                    var sharesAmount = parseFloat(wordList[0].replace(/,/g, ""));
-                    if (!isNaN(sharesAmount)) {
-                      isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
-                        if (err) {
-                          sendTextMessage(senderID, "An error occured.");
-                          states(senderID, user.payload);
-                          throw err;
-                        }
-
-                        if (result) {
-                          db.userAccounts.findOne({"fbUserId": senderID}, function(err, userAccount) {
-                            if (userAccount.stocks && (sharesAmount > userAccount.stocks[user.payload.companySymbol])) {
-                              sendTextMessage(senderID, "Not enough shares.");
-                              states(senderID, user.payload);
-                            } else if (userAccount.stocks) {
-                              var payload = {
-                                  state: "SELLING_STOCKS",
-                                  part: 2,
-                                  sellingPrice: user.payload.sellingPrice,
-                                  sharesAmount: sharesAmount,
-                                  recipient: {
-                                    id: senderID
-                                  },
-                                  companyId: user.payload.companyId,
-                                  companyName: user.payload.companyName,
-                                  companySymbol: user.payload.companySymbol
-                                };
-                              states(senderID, payload);
-                            } else {
-                              console.log(userAccount)
-                              sendTextMessage(senderID, "Invalid amount value.");
-                              states(senderID, user.payload);
-                            }
-                          });
-                        } else {
-                          sendTextMessage(senderID, "Invalid amount value.");
-                          states(senderID, user.payload);
-                        }
-                      });  
-                    } else {
-                      sendTextMessage(senderID, "Invalid amount value.");
-                      states(senderID, user.payload);
-                    }
-                    break;
-                  default:
-                    states(senderID, user.payload);
-                }
-                break;
+                  }
+                  break;
                 default:
                   sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
+              }
+            } else {
+              sendTextMessage(senderID, "I'm sorry I did not recognize your command.");              
             }
           } else {
-            sendTextMessage(senderID, "I'm sorry I did not recognize your command.");
+            sendAccountLinking(senderID, initialText);
           }
         });
     }
@@ -865,23 +892,7 @@ function sendStockInfo(recipientId, tickerSymbol) {
                     + "\n52 Week High: " + company['52WeekHigh']
                     + "\n52 Week Low: " + company['52WeekLow']
                     + "\nPE: " + company.pe;
-                  if (user.stocks) {
-                    if (user.stocks[tickerSymbol]) {
-                      textInfo += "\nYour stocks: " + user.stocks[tickerSymbol];
-                    }
-                  }
-
-                  var messageData = {
-                    recipient: {
-                      id: recipientId
-                    },
-                    message: {
-                      attachment: {
-                        type: "template",
-                        payload: {
-                          template_type: "button",
-                          text: textInfo,
-                          buttons:[{
+                  var buttons = [{
                             type: "postback",
                             title: "Buy",
                             payload: JSON.stringify({
@@ -894,7 +905,11 @@ function sendStockInfo(recipientId, tickerSymbol) {
                               companyName: company.name,
                               companySymbol: company.symbol
                             })
-                          }, {
+                          }];
+                  if (user.stocks) {
+                    if (user.stocks[tickerSymbol]) {
+                      textInfo += "\nYour stocks: " + user.stocks[tickerSymbol];
+                      buttons.push({
                             type: "postback",
                             title: "Sell",
                             payload: JSON.stringify({
@@ -907,7 +922,22 @@ function sendStockInfo(recipientId, tickerSymbol) {
                               companyName: company.name,
                               companySymbol: company.symbol
                             })
-                          }]
+                          });
+                    }
+                  }
+                  
+
+                  var messageData = {
+                    recipient: {
+                      id: recipientId
+                    },
+                    message: {
+                      attachment: {
+                        type: "template",
+                        payload: {
+                          template_type: "button",
+                          text: textInfo,
+                          buttons: buttons
                         }
                       }
                     }
