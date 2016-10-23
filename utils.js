@@ -60,6 +60,7 @@ module.exports = function() {
                   if (err) {
                     throw err;
                   }
+                  console.log("Finishing user registration.");
                   console.log(userAccountUpdate);
                   if (userAccountUpdate.result.nModified > 0) {
                     db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
@@ -79,6 +80,8 @@ module.exports = function() {
                         sendNewUserOptions(senderID);
                       });
                     });
+                  } else {
+                    console.log("Failed to update userAccount");
                   }
                 });
               }
@@ -118,6 +121,7 @@ module.exports = function() {
             if (err)
               throw err;
             if (result) {
+              console.log("Deleted pre-user data");
               var params = {
                 senderID: senderID,
                 status: status,
