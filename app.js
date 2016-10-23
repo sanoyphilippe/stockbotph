@@ -307,6 +307,8 @@ function receivedMessage(event) {
       if (err)
         throw err;
       if (info) {
+        console.log("User has profile: ")
+        console.log(info);
         var userInfo = info;
         const initialText = "Hi " + userInfo.first_name + " please login to your account to get started.";
         const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
