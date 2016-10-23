@@ -29,6 +29,68 @@ module.exports = function() {
         "number %d", watermark, sequenceNumber);
     };
 
+  this.linkUserAccount = function(params) {
+    const senderID = params['senderID'];
+    const authCode = params['authCode'];
+    const status = params['status'];
+    const fbDetails = params['fbDetails'];
+
+    db.users.update({"service.authCode" : authCode }, {'$set':{"fbUserId": senderID, "service.status": status, "fbInfo": fbDetails['fbInfo']}}, function(err, result) {
+      if (err) throw err;
+      if (result && result.result.nModified > 0) {
+        console.log(result.result.nModified);
+        console.log('Linked user!');
+        console.log("Received account link event with for user %d with status %s " +
+        "and auth code %s ", senderID, status, authCode);
+
+        db.users.findOne({"fbUserId" : senderID }, function(err, user) {
+          if (err)
+            throw err;
+          console.log(user);
+          if (user) {
+            db.userAccounts.findOne({"$and": [{"email": user.email}, {"fbUserId": senderID}]}, function(err, userAccount) {
+              if (err)
+                throw err;
+              console.log(userAccount);
+              if (userAccount) {
+                var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(userAccount.credit) + ".";
+                sendTextMessage(senderID, text);
+              } else {
+                db.userAccounts.update({"email": user.email}, {"$set": {"fbUserId": senderID}}, function(err, userAccountUpdate) {
+                  if (err) {
+                    throw err;
+                  }
+                  console.log(userAccountUpdate);
+                  if (userAccountUpdate.result.nModified > 0) {
+                    db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
+                      var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(entry.credit) + ".";
+                      sendTextMessage(senderID, text);
+
+                      var newpayload = { 
+                        state: "USER_SETUP", 
+                        done: false, 
+                        part: 0, 
+                        value: 0, 
+                        divisorValue: 0
+                      };
+                      db.users.update({"fbUserId": senderID}, {"$set": {"payload": newpayload}}, function(err, result) {
+                        if (err)
+                          throw err;
+                        sendNewUserOptions(senderID);
+                      });
+                    });
+                  }
+                });
+              }
+            });
+          }
+        });
+      } else {
+        console.log('user not found - status not linked');
+      }
+  });
+  };
+
   /*
    * Account Link Event
    *
@@ -45,59 +107,37 @@ module.exports = function() {
     var authCode = event.account_linking.authorization_code;
 
     if (status == "linked") {
-      db.users.update({"service.authCode" : authCode }, {'$set':{"fbUserId": senderID, "service.status": status}}, function(err, result) {
-          if (err) throw err;
-          if (result && result.result.nModified > 0) {
-            console.log(result.result.nModified);
-            console.log('Linked user!');
-            console.log("Received account link event with for user %d with status %s " +
-            "and auth code %s ", senderID, status, authCode);
+      db.users.find({"fbUserId": senderID}, function(err, user) {
+        if (err)
+          throw err;
+        if (user && user.newUser) {
+          var fbDetails = {};
+          fbDetails['fbUserId'] = user.fbUserId;
+          fbDetails['fbInfo'] = user.fbInfo;
+          db.users.remove({"fbUserId": senderID}, function(err, result) {
+            if (err)
+              throw err;
+            if (result) {
+              var params = {
+                senderID: senderID,
+                status: status,
+                authCode: authCode,
+                fbDetails: fbDetails
+              };
 
-            db.users.findOne({"fbUserId" : senderID }, function(err, user) {
-              if (err)
-                throw err;
-              console.log(user);
-              if (user) {
-                db.userAccounts.findOne({"$and": [{"email": user.email}, {"fbUserId": senderID}]}, function(err, userAccount) {
-                  if (err)
-                    throw err;
-                  console.log(userAccount);
-                  if (userAccount) {
-                    var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(userAccount.credit) + ".";
-                    sendTextMessage(senderID, text);
-                  } else {
-                    db.userAccounts.update({"email": user.email}, {"$set": {"fbUserId": senderID}}, function(err, userAccountUpdate) {
-                      if (err) {
-                        throw err;
-                      }
-                      console.log(userAccountUpdate);
-                      if (userAccountUpdate.result.nModified > 0) {
-                        db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
-                          var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(entry.credit) + ".";
-                          sendTextMessage(senderID, text);
+              linkUserAccount(params);
+            }
+          });
+        } else {
+          var params = {
+            senderID: senderID,
+            status: status,
+            authCode: authCode,
+            fbDetails: fbDetails
+          };
 
-                          var newpayload = { 
-                            state: "USER_SETUP", 
-                            done: false, 
-                            part: 0, 
-                            value: 0, 
-                            divisorValue: 0
-                          };
-                          db.users.update({"fbUserId": senderID}, {"$set": {"payload": newpayload}}, function(err, result) {
-                            if (err)
-                              throw err;
-                            sendNewUserOptions(senderID);
-                          });
-                        });
-                      }
-                    });
-                  }
-                });
-              }
-            });
-          } else {
-            console.log('user not found - status not linked');
-          }
+          linkUserAccount(params);
+        }
       });
     } else if (status == "unlinked") {
       db.users.update({ "fbUserId" : senderID }, {'$set':{ "service.status": status} }, function(err, result) {
@@ -195,6 +235,40 @@ module.exports = function() {
    * Send a message with the account linking call-to-action
    *
    */
+  this.sendGetStarted = function (recipientId, text) {
+    var messageData = {
+      recipient: {
+        id: recipientId
+      },
+      message: {
+        attachment: {
+          type: "template",
+          payload: {
+            template_type: "button",
+            text: text,
+            buttons:[{
+              type: "account_link",
+              title: "Get Started",
+              url: SERVER_URL + "/authorize"
+            }]
+          }
+        }
+      }
+    };
+
+    var done = false;
+    while (!done) {
+      if (isSendAPIReady) {
+        callSendAPI(messageData);
+        done = true;
+      }
+    }
+  };
+
+  /*
+   * Send a message with the account linking call-to-action
+   *
+   */
   this.sendAccountLinking = function (recipientId, text) {
     var messageData = {
       recipient: {
@@ -222,7 +296,7 @@ module.exports = function() {
         done = true;
       }
     }
-  }
+  };
 
   this.sendAccountUnlinking = function (recipientId) {
     var messageData = {
