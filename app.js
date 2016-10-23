@@ -718,23 +718,30 @@ function receivedPostback(event) {
 
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
-  var payload = {};
-  if (event.postback.payload == "USER_SETUP") {
-    db.users.insert({"fbUserId": senderID, "newUser": true}, function(err, result) {
-      if (err) 
-        throw err;
-      if (result) {
-        const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here."
-          + "\nLet us get you started.";
-        sendGetStarted(senderID, newUserText);
+  getUserInfo(senderID, function(err, info) {
+    if (err)
+      throw err;
+    if (info) {
+      var payload = {};
+      var userInfo = info;
+      if (event.postback.payload == "USER_SETUP") {
+        db.users.insert({"fbUserId": senderID, "fbInfo": userInfo, "newUser": true}, function(err, result) {
+          if (err) 
+            throw err;
+          if (result) {
+            const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
+              + "\nLet us get you started.";
+            sendGetStarted(senderID, newUserText);
+          }
+        });
+      } else {
+        payload = JSON.parse(event.postback.payload); 
+        states(senderID, payload);
       }
-    });
-  } else {
-    payload = JSON.parse(event.postback.payload); 
-    states(senderID, payload);
-  }
-  console.log("Received postback for user %d and page %d with payload '%s' " +
-    "at %d", senderID, recipientID, payload, timeOfPostback);
+      console.log("Received postback for user %d and page %d with payload '%s' " +
+        "at %d", senderID, recipientID, payload, timeOfPostback);
+    }
+  });
   // When a postback is called, we'll send a message back to the sender to
   // let them know it was successful
 }

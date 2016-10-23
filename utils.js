@@ -256,7 +256,6 @@ module.exports = function() {
             text: text,
             buttons:[{
               type: "account_link",
-              title: "Get Started",
               url: SERVER_URL + "/authorize"
             }]
           }
