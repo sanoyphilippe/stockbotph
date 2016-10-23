@@ -53,7 +53,7 @@ module.exports = function() {
                 throw err;
               console.log(userAccount);
               if (userAccount) {
-                var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(userAccount.credit) + ".";
+                var text = "Welcome back " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(roundup(userAccount.credit, 2)) + ".";
                 sendTextMessage(senderID, text);
               } else {
                 db.userAccounts.update({"email": user.email}, {"$set": {"fbUserId": senderID}}, function(err, userAccountUpdate) {
@@ -64,7 +64,7 @@ module.exports = function() {
                   console.log(userAccountUpdate);
                   if (userAccountUpdate.result.nModified > 0) {
                     db.userAccounts.findOne({"fbUserId": senderID}, function(err, entry) {
-                      var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(entry.credit) + ".";
+                      var text = "Welcome " + user.name.firstName + "!\n" + "Your credit balance is " + prettifyNumber(roundup(entry.credit, 2)) + ".";
                       sendTextMessage(senderID, text);
 
                       var newpayload = { 

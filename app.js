@@ -326,7 +326,7 @@ function receivedMessage(event) {
                       if (err)
                         throw err;
                       if (account) {
-                        var textBalance = "Hi " + user.name.firstName +"\nYou currently have PHP " + prettifyNumber(account.credit) + " in your account.";
+                        var textBalance = "Hi " + user.name.firstName +"\nYou currently have PHP " + prettifyNumber(roundup(account.credit, 2)) + " in your account.";
                         sendTextMessage(senderID, textBalance);
                       }
                     });
