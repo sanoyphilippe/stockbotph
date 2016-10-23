@@ -128,7 +128,11 @@ module.exports = function() {
               linkUserAccount(params);
             }
           });
-        } else {
+        } else if (user) {
+          var fbDetails = {};
+          fbDetails['fbUserId'] = user.fbUserId;
+          fbDetails['fbInfo'] = user.fbInfo;
+          
           var params = {
             senderID: senderID,
             status: status,
