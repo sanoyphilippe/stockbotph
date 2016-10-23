@@ -486,7 +486,7 @@ function receivedMessage(event) {
                     break;
 
                   case 1:
-                    var sharesAmount = parseInt(wordList[0].replace(/,/g, ""));
+                    var sharesAmount = parseFloat(wordList[0].replace(/,/g, ""));
                     if (!isNaN(sharesAmount)) {
                       isValidAmount(sharesAmount, user.payload.companySymbol, function(err, result) {
                         if (err) {
