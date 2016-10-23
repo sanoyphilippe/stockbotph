@@ -718,11 +718,11 @@ function receivedPostback(event) {
 
   // The 'payload' param is a developer-defined field which is set in a postback
   // button for Structured Messages.
-  var paylooad = {}
-  getUserInfo(senderID, function(err, info){
+  getUserInfo(senderID, function(err, info) {
     if (err)
       throw err;
     if (info) {
+      var paylooad = {};
       var userInfo = info;
       if (event.postback.payload == "USER_SETUP") {
         const newUserText = "Hi welcome to Stockbot!\nI can see that you're new here " + userInfo.first_name
