@@ -1,6 +1,6 @@
 {
     "appSecret": "72112b1ae26d6a6d2673925e5578ea64",
-    "pageAccessToken": "EAAJjHHCciFUBAHTNvCAy1YU2ktzfHfrsqnFJRo480cWyZCZAbfqUeReyMiBqJTAmFIE0ZCmFa7BmLmZADium4xc3VjDVItCnZBQsc592VCEE3MbRMMydzOZADZCgKPxKHk5OCrUW0hoNGfZAGHLvTxPlClaZBv07g1tZC3ezBcEvyKGwZDZD",
+    "pageAccessToken": "EAAJjHHCciFUBANl1oEwgh2fS2YzwfHpMChsaS9zAZBiS57M7eo0lRv9rq9Kg3OV9R4lvqAyEzoWUXcbhYgnjDgrQvJL0ndxtPeTQ1DTGQ8LIA0GLKdj0uX3jrSEN4EaCoQ3oV2oJSLiYvtRizYaal274pgQTlYTKg6S24ZCAZDZD",
     "validationToken": "popowashere",
     "serverURL": "https://stockbotph.herokuapp.com/",
     "mongoURI": "mongodb://sanoyphilippe:123456@ds061206.mlab.com:61206/stocksbot"
